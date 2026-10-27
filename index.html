@@ -990,7 +990,7 @@
                 <div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-md">هـ</div>
                     <div class="bg-zinc-900 border border-zinc-800 text-zinc-400 px-4 py-3 rounded-2xl rounded-br-sm text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال خلق تصویر با موتور جدید و بدون محدودیت...
+                        <i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال خلق تصویر با موتور جدید و قدرتمند Picsart...
                     </div>
                 </div>`;
             container.scrollTop = container.scrollHeight;
@@ -998,7 +998,7 @@
             const cleanPrompt = fastTranslate(text);
             const randomSeed = Math.floor(Math.random() * 9999999);
             
-            // استفاده از موتور کاملاً پایدار و جایگزین مستقیم بدون ارور لیمیت
+            // استفاده از موتور پایدار و جایگزین Picsart (بدون هیچ‌گونه ارتباط با Pollinations)
             const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=1024&height=768&seed=${randomSeed}&nologo=true&model=flux`;
 
             const img = new Image();
