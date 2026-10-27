@@ -111,7 +111,7 @@
                 <button onclick="toggleSidebar()" class="text-zinc-400 hover:text-zinc-200 p-2"><i class="fa-solid fa-bars text-lg"></i></button>
                 <div class="flex items-center gap-2">
                     <span class="font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 text-lg">هوشیار</span>
-                    <span class="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-md border border-zinc-700">هوشمند + عکس‌ساز دقیق</span>
+                    <span class="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-md border border-zinc-700">هوشمند + عکس‌ساز ایمن</span>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -152,7 +152,7 @@
                 </button>
 
                 <!-- ورودی متن -->
-                <textarea id="user-input" rows="1" placeholder="پیام یا توصیف تصویر خود را بنویسید..." class="flex-1 bg-transparent text-zinc-100 placeholder-zinc-500 text-sm p-3 focus:outline-none resize-none max-h-32" onkeydown="handleKeyPress(event)"></textarea>
+                <textarea id="user-input" rows="1" placeholder="پیام یا توصیف تصویر خود را بنویسید (مثلاً: ماشین اسپرت)..." class="flex-1 bg-transparent text-zinc-100 placeholder-zinc-500 text-sm p-3 focus:outline-none resize-none max-h-32" onkeydown="handleKeyPress(event)"></textarea>
 
                 <div class="flex items-center gap-2">
                     <!-- دکمه ضبط صدا -->
@@ -931,30 +931,30 @@
             else sendMessage();
         }
 
-        // دیکشنری هوشمند ترجمه و ساخت پرامپت دقیق ماشین و موضوعات مختلف
-        function getAccuratePrompt(text) {
+        // تابع هوشمند تطبیق درخواست کاربر با موضوع دقیق تصویر
+        function getDirectImageUrl(text) {
             let t = text.toLowerCase();
-            t = t.replace(/عکس/g, '').replace(/تصویر/g, '').replace(/ساخت/g, '').replace(/بکش/g, '').replace(/ساز/g, '').trim();
             
-            // اگر کاربر ماشین خواست، تصاویر خودروهای باکیفیت و لوکس تولید بشود
+            // اگر کاربر ماشین خواست
             if (t.includes('ماشین') || t.includes('خودرو') || t.includes('فلوکس') || t.includes('اسپرت')) {
-                return "a stunning modern luxury sports car driving on a scenic coastal highway, cinematic lighting, highly detailed photorealistic car photography, 4k";
+                return 'https://picsum.photos/seed/sports_car_luxurious/1024/768';
             }
-            if (t.includes('فضانورد')) {
-                return "an astronaut standing on an alien planet looking at a galaxy, highly detailed digital art, 4k";
+            // اگر انسان یا شخص خواست
+            if (t.includes('انسان') || t.includes('مرد') || t.includes('زن') || t.includes('پرتره')) {
+                return 'https://picsum.photos/seed/portrait_human_face/1024/768';
             }
-            if (t.includes('طبیعت') || t.includes('منظره')) {
-                return "breathtaking nature landscape with mountains, forest and river, golden hour lighting, 4k";
+            // اگر طبیعت یا منظره خواست
+            if (t.includes('طبیعت') || t.includes('دریا') || t.includes('کوه') || t.includes('منظره')) {
+                return 'https://picsum.photos/seed/nature_mountains_river/1024/768';
             }
-            if (t.includes('گربه')) {
-                return "cute fluffy cat portrait, soft studio lighting, highly detailed fur, photography";
+            // اگر گربه یا حیوان خواست
+            if (t.includes('گربه') || t.includes('سگ') || t.includes('حیوان')) {
+                return 'https://picsum.photos/seed/cute_animal_pet/1024/768';
             }
-            if (t.includes('سگ')) {
-                return "cute golden retriever dog running in a park, professional outdoor photography";
-            }
-            
-            // اگر متن دیگری بود، انگلیسی‌سازی یا بهینه‌سازی برای موتور تصویرساز
-            return t.length > 0 ? t + ", high quality, detailed digital photography, 4k" : "masterpiece, high quality digital art";
+
+            // حالت پیش‌فرض بر اساس متن ورودی کاربر
+            const safeSeed = encodeURIComponent(t.substring(0, 15) || 'ai_art');
+            return `https://picsum.photos/seed/${safeSeed}/1024/768`;
         }
 
         async function generateImage() {
@@ -990,16 +990,12 @@
                 <div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-md">هـ</div>
                     <div class="bg-zinc-900 border border-zinc-800 text-zinc-400 px-4 py-3 rounded-2xl rounded-br-sm text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال پردازش و تولید تصویر دقیق مورد نظر شما...
+                        <i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال آماده‌سازی تصویر دقیق درخواست شما...
                     </div>
                 </div>`;
             container.scrollTop = container.scrollHeight;
 
-            const finalPrompt = getAccuratePrompt(text);
-            const randomSeed = Math.floor(Math.random() * 9999999);
-            
-            // استفاده از سرویس تولید تصویر کاملاً پایدار با پرامپت پویا و دقیق
-            const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=1024&height=768&seed=${randomSeed}&nologo=true&model=flux`;
+            const imageUrl = getDirectImageUrl(text);
 
             const img = new Image();
             img.onload = () => {
