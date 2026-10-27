@@ -362,7 +362,7 @@
 
             <!-- پاسخ به تیکت‌های پشتیبانی کاربران -->
             <div class="space-y-3">
-                <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-wider">مدیریت تیکت‌های پشتیبانی کاربران</h4>
+                <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-wider">مدیریت تیکت‌های پشتیبانی کاربران (همه کاربران)</h4>
                 <div id="admin-tickets-list" class="space-y-2 max-h-50 overflow-y-auto pr-1"></div>
             </div>
 
@@ -894,19 +894,20 @@
         function renderAdminTickets() {
             const list = document.getElementById('admin-tickets-list');
             if (!ticketsDB || ticketsDB.length === 0) {
-                list.innerHTML = `<div class="text-xs text-zinc-500 p-3 bg-zinc-950 rounded-xl text-center">هیچ تیکتی ثبت نشده است.</div>`;
+                list.innerHTML = `<div class="text-xs text-zinc-500 p-3 bg-zinc-950 rounded-xl text-center">هیچ تیکتی از هیچ کاربری ثبت نشده است.</div>`;
                 return;
             }
 
+            // نمایش تمامی تیکت‌های تمامی کاربران برای مدیر و معاون
             list.innerHTML = ticketsDB.map((t, idx) => `
                 <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl space-y-2 text-xs">
                     <div class="flex items-center justify-between">
-                        <span class="font-bold text-indigo-400">کاربر: ${escapeHtml(t.username)} - ${escapeHtml(t.subject)}</span>
+                        <span class="font-bold text-indigo-400">کاربر: ${escapeHtml(t.username)} | موضوع: ${escapeHtml(t.subject)}</span>
                         <span class="px-2 py-0.5 rounded text-[10px] ${t.status === 'پاسخ داده شده' ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'}">${t.status}</span>
                     </div>
                     <p class="text-zinc-300 bg-zinc-900 p-2 rounded-lg">${escapeHtml(t.message)}</p>
                     <div class="flex gap-2 pt-1">
-                        <input type="text" id="admin-reply-${idx}" placeholder="پاسخ به این تیکت..." value="${t.reply || ''}" class="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:outline-none focus:border-indigo-500">
+                        <input type="text" id="admin-reply-${idx}" placeholder="پاسخ به تیکت این کاربر..." value="${t.reply || ''}" class="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:outline-none focus:border-indigo-500">
                         <button onclick="sendAdminTicketReply('${t.id}', ${idx})" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold">ارسال پاسخ</button>
                     </div>
                 </div>
