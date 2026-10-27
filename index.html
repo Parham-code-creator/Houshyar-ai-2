@@ -459,7 +459,7 @@
             if (isImageMode) {
                 icon.className = 'fa-solid fa-image text-purple-400';
                 text.innerText = 'تصویر';
-                input.placeholder = 'توصیف تصویری که می‌خواهید ساخته شود را بنویسید (مثلاً: تانک پرنده در آسمان)...';
+                input.placeholder = 'توصیف تصویری که می‌خواهید ساخته شود را بنویسید...';
             } else {
                 icon.className = 'fa-solid fa-message text-indigo-400';
                 text.innerText = 'متن';
@@ -768,7 +768,7 @@
             else sendMessage();
         }
 
-        // تابع هوشمند برای ترجمه متن فارسی به انگلیسی جهت ساخت تصویر دقیق‌تر
+        // ترجمه هوشمند فارسی به انگلیسی برای تولید تصویر دقیق‌تر توسط هوش مصنوعی
         async function translateToEnglish(text, apiKey) {
             try {
                 const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -780,7 +780,7 @@
                     body: JSON.stringify({
                         model: "openai/gpt-oss-20b",
                         messages: [
-                            { role: "system", content: "Translate the following user image prompt into a clear, detailed English prompt for an AI image generator. Return ONLY the English translation without any extra text or quotes." },
+                            { role: "system", content: "Translate the following user prompt into a clear, detailed English prompt for an AI image generator. Return ONLY the English translation without any extra text or quotes." },
                             { role: "user", content: text }
                         ]
                     })
@@ -790,7 +790,7 @@
                     return data.choices[0].message.content.trim();
                 }
             } catch (e) {}
-            return text; // در صورت خطا، همان متن اصلی را برمی‌گرداند
+            return text;
         }
 
         async function generateImage() {
@@ -833,9 +833,9 @@
                 </div>`;
             container.scrollTop = container.scrollHeight;
 
-            // ترجمه خودکار متن فارسی به انگلیسی برای دقت ۱۰۰٪ هوش مصنوعی
             const translatedPrompt = await translateToEnglish(text, apiKey);
 
+            // استفاده از سرویس Pollinations با مدل عمومی و پایدار برای جلوگیری از خطای لیمیت
             const seed = Math.floor(Math.random() * 999999);
             const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(translatedPrompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
 
@@ -872,7 +872,7 @@
                     <div class="flex items-start gap-4 max-w-3xl mx-auto">
                         <div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-xs font-bold text-white shrink-0">خطا</div>
                         <div class="bg-red-950/50 border border-red-900/50 text-red-200 px-4 py-3 rounded-2xl text-sm">
-                            خطا در دریافت تصویر. لطفاً چند لحظه دیگر تلاش کنید.
+                            خطا در دریافت تصویر. لطفاً چند لحظه دیگر دوباره تلاش کنید.
                         </div>
                     </div>`;
                 container.scrollTop = container.scrollHeight;
