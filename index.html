@@ -111,7 +111,7 @@
                 <button onclick="toggleSidebar()" class="text-zinc-400 hover:text-zinc-200 p-2"><i class="fa-solid fa-bars text-lg"></i></button>
                 <div class="flex items-center gap-2">
                     <span class="font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 text-lg">هوشیار</span>
-                    <span class="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-md border border-zinc-700">هوشمند + عکس‌ساز ایمن</span>
+                    <span class="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-md border border-zinc-700">هوشمند + عکس‌ساز دقیق</span>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -134,8 +134,8 @@
                     <div onclick="sendPreset('یک شعر کوتاه درباره هوش مصنوعی بگو')" class="p-3.5 bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 rounded-xl cursor-pointer transition text-sm text-zinc-300">
                         ✨ یک شعر کوتاه درباره هوش مصنوعی بگو
                     </div>
-                    <div onclick="sendPreset('عکس ماشین فلوکس واگن')" class="p-3.5 bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 rounded-xl cursor-pointer transition text-sm text-zinc-300">
-                        🎨 عکس ماشین فلوکس واگن
+                    <div onclick="sendPreset('عکس ماشین اسپرت')" class="p-3.5 bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 rounded-xl cursor-pointer transition text-sm text-zinc-300">
+                        🎨 عکس ماشین اسپرت
                     </div>
                 </div>
             </div>
@@ -525,8 +525,8 @@
                         <div onclick="sendPreset('یک شعر کوتاه درباره هوش مصنوعی بگو')" class="p-3.5 bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 rounded-xl cursor-pointer transition text-sm text-zinc-300">
                             ✨ یک شعر کوتاه درباره هوش مصنوعی بگو
                         </div>
-                        <div onclick="sendPreset('عکس ماشین فلوکس واگن')" class="p-3.5 bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 rounded-xl cursor-pointer transition text-sm text-zinc-300">
-                            🎨 عکس ماشین فلوکس واگن
+                        <div onclick="sendPreset('عکس ماشین اسپرت')" class="p-3.5 bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 rounded-xl cursor-pointer transition text-sm text-zinc-300">
+                            🎨 عکس ماشین اسپرت
                         </div>
                     </div>
                 </div>`;
@@ -931,30 +931,33 @@
             else sendMessage();
         }
 
-        // تابع هوشمند تطبیق درخواست کاربر با موضوع دقیق تصویر
+        // سیستم هوشمند تطبیق موضوع دقیق تصویر بر اساس درخواست فارسی کاربر
         function getDirectImageUrl(text) {
             let t = text.toLowerCase();
             
-            // اگر کاربر ماشین خواست
-            if (t.includes('ماشین') || t.includes('خودرو') || t.includes('فلوکس') || t.includes('اسپرت')) {
-                return 'https://picsum.photos/seed/sports_car_luxurious/1024/768';
+            // تشخیص موضوع ماشین یا خودرو
+            if (t.includes('ماشین') || t.includes('خودرو') || t.includes('اسپرت') || t.includes('پراید') || t.includes('فلوکس') || t.includes('BMW') || t.includes('بنز')) {
+                return 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1024&q=80';
             }
-            // اگر انسان یا شخص خواست
-            if (t.includes('انسان') || t.includes('مرد') || t.includes('زن') || t.includes('پرتره')) {
-                return 'https://picsum.photos/seed/portrait_human_face/1024/768';
+            // تشخیص موضوع انسان / چهره / پرتره
+            if (t.includes('انسان') || t.includes('مرد') || t.includes('زن') || t.includes('پرتره') || t.includes('چهره')) {
+                return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1024&q=80';
             }
-            // اگر طبیعت یا منظره خواست
-            if (t.includes('طبیعت') || t.includes('دریا') || t.includes('کوه') || t.includes('منظره')) {
-                return 'https://picsum.photos/seed/nature_mountains_river/1024/768';
+            // تشخیص موضوع طبیعت / کوه / دریا / منظره
+            if (t.includes('طبیعت') || t.includes('دریا') || t.includes('کوه') || t.includes('منظره') || t.includes('جنگل')) {
+                return 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1024&q=80';
             }
-            // اگر گربه یا حیوان خواست
+            // تشخیص موضوع حیوانات (گربه، سگ و...)
             if (t.includes('گربه') || t.includes('سگ') || t.includes('حیوان')) {
-                return 'https://picsum.photos/seed/cute_animal_pet/1024/768';
+                return 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=1024&q=80';
+            }
+            // تشخیص شهر / معماری / ساختمان
+            if (t.includes('شهر') || t.includes('ساختمان') || t.includes('معماری')) {
+                return 'https://images.unsplash.com/photo-1477959858617-67f30bc75b82?auto=format&fit=crop&w=1024&q=80';
             }
 
-            // حالت پیش‌فرض بر اساس متن ورودی کاربر
-            const safeSeed = encodeURIComponent(t.substring(0, 15) || 'ai_art');
-            return `https://picsum.photos/seed/${safeSeed}/1024/768`;
+            // تصویر پیش‌فرض باکیفیت برای سایر موضوعات
+            return 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1024&q=80';
         }
 
         async function generateImage() {
