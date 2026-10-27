@@ -111,7 +111,7 @@
                 <button onclick="toggleSidebar()" class="text-zinc-400 hover:text-zinc-200 p-2"><i class="fa-solid fa-bars text-lg"></i></button>
                 <div class="flex items-center gap-2">
                     <span class="font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 text-lg">هوشیار</span>
-                    <span class="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-md border border-zinc-700">هوشمند + عکس‌ساز جدید</span>
+                    <span class="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-md border border-zinc-700">هوشمند + عکس‌ساز دقیق</span>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -503,7 +503,7 @@
             if (isImageMode) {
                 icon.className = 'fa-solid fa-image text-purple-400';
                 text.innerText = 'تصویر';
-                input.placeholder = 'توصیف تصویری که می‌خواهید ساخته شود را بنویسید...';
+                input.placeholder = 'توصیف تصویری که می‌خواهید ساخته شود را بنویسید (مثلاً: ماشین اسپرت)...';
             } else {
                 icon.className = 'fa-solid fa-message text-indigo-400';
                 text.innerText = 'متن';
@@ -931,30 +931,30 @@
             else sendMessage();
         }
 
-        function fastTranslate(text) {
+        // دیکشنری هوشمند ترجمه و ساخت پرامپت دقیق ماشین و موضوعات مختلف
+        function getAccuratePrompt(text) {
             let t = text.toLowerCase();
             t = t.replace(/عکس/g, '').replace(/تصویر/g, '').replace(/ساخت/g, '').replace(/بکش/g, '').replace(/ساز/g, '').trim();
             
-            const dictionary = {
-                'فلوکس واگن': 'Volkswagen Beetle classic retro car on a scenic road, highly detailed, photorealistic',
-                'فلوکسواگن': 'Volkswagen Beetle classic retro car on a scenic road, highly detailed, photorealistic',
-                'ماشین فلوکس واگن': 'Volkswagen Beetle classic retro car, photorealistic',
-                'ماشین': 'modern sports car, realistic, 4k',
-                'فضانورد': 'astronaut standing on alien planet, highly detailed sci-fi art',
-                'پاسارگاد': 'Pasargadae ancient historical monument in Iran, cinematic lighting',
-                'سگ': 'cute golden retriever dog, professional portrait photography',
-                'گربه': 'cute fluffy cat, detailed fur, photography',
-                'خانه': 'modern luxury villa architecture, evening lighting',
-                'طبیعت': 'breathtaking nature landscape mountains and river, 4k',
-                'گل': 'vibrant red rose flower macro photography'
-            };
-
-            for (let key in dictionary) {
-                if (t.includes(key)) {
-                    return dictionary[key];
-                }
+            // اگر کاربر ماشین خواست، تصاویر خودروهای باکیفیت و لوکس تولید بشود
+            if (t.includes('ماشین') || t.includes('خودرو') || t.includes('فلوکس') || t.includes('اسپرت')) {
+                return "a stunning modern luxury sports car driving on a scenic coastal highway, cinematic lighting, highly detailed photorealistic car photography, 4k";
             }
-            return t.length > 0 ? t + ", high quality, detailed photography" : "masterpiece, high quality digital art";
+            if (t.includes('فضانورد')) {
+                return "an astronaut standing on an alien planet looking at a galaxy, highly detailed digital art, 4k";
+            }
+            if (t.includes('طبیعت') || t.includes('منظره')) {
+                return "breathtaking nature landscape with mountains, forest and river, golden hour lighting, 4k";
+            }
+            if (t.includes('گربه')) {
+                return "cute fluffy cat portrait, soft studio lighting, highly detailed fur, photography";
+            }
+            if (t.includes('سگ')) {
+                return "cute golden retriever dog running in a park, professional outdoor photography";
+            }
+            
+            // اگر متن دیگری بود، انگلیسی‌سازی یا بهینه‌سازی برای موتور تصویرساز
+            return t.length > 0 ? t + ", high quality, detailed digital photography, 4k" : "masterpiece, high quality digital art";
         }
 
         async function generateImage() {
@@ -990,15 +990,16 @@
                 <div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-md">هـ</div>
                     <div class="bg-zinc-900 border border-zinc-800 text-zinc-400 px-4 py-3 rounded-2xl rounded-br-sm text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال تولید تصویر با موتور کاملاً جدید...
+                        <i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال پردازش و تولید تصویر دقیق مورد نظر شما...
                     </div>
                 </div>`;
             container.scrollTop = container.scrollHeight;
 
-            const cleanPrompt = fastTranslate(text);
+            const finalPrompt = getAccuratePrompt(text);
+            const randomSeed = Math.floor(Math.random() * 9999999);
             
-            // استفاده از موتور کاملاً جایگزین و بدون ارور لیمیت سرور قبلی
-            const imageUrl = `https://picsum.photos/seed/${encodeURIComponent(cleanPrompt)}/1024/768`;
+            // استفاده از سرویس تولید تصویر کاملاً پایدار با پرامپت پویا و دقیق
+            const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=1024&height=768&seed=${randomSeed}&nologo=true&model=flux`;
 
             const img = new Image();
             img.onload = () => {
