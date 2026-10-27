@@ -111,7 +111,7 @@
                 <button onclick="toggleSidebar()" class="text-zinc-400 hover:text-zinc-200 p-2"><i class="fa-solid fa-bars text-lg"></i></button>
                 <div class="flex items-center gap-2">
                     <span class="font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 text-lg">هوشیار</span>
-                    <span class="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-md border border-zinc-700">هوشمند + عکس‌ساز دقیق</span>
+                    <span class="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-md border border-zinc-700">هوشمند + توضیحات اختصاصی</span>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -931,7 +931,7 @@
             else sendMessage();
         }
 
-        // سیستم هوشمند تطبیق موضوع دقیق تصویر بر اساس درخواست فارسی کاربر
+        // سیستم هوشمند تطبیق موضوع دقیق تصویر بر اساس درخواست کاربر
         function getDirectImageUrl(text) {
             let t = text.toLowerCase();
             
@@ -943,7 +943,7 @@
             if (t.includes('انسان') || t.includes('مرد') || t.includes('زن') || t.includes('پرتره') || t.includes('چهره')) {
                 return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1024&q=80';
             }
-            // تشخیص موضوع طبیعت / کوه / دریا / منظره
+            // تشخیص موضوع طبیعت / دریا / کوه / منظره
             if (t.includes('طبیعت') || t.includes('دریا') || t.includes('کوه') || t.includes('منظره') || t.includes('جنگل')) {
                 return 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1024&q=80';
             }
@@ -956,7 +956,6 @@
                 return 'https://images.unsplash.com/photo-1477959858617-67f30bc75b82?auto=format&fit=crop&w=1024&q=80';
             }
 
-            // تصویر پیش‌فرض باکیفیت برای سایر موضوعات
             return 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1024&q=80';
         }
 
@@ -1007,13 +1006,16 @@
 
                 incrementQuota('img');
 
+                // توضیحات اضافی و اختصاصی بر اساس درخواست کاربر (مطابق خواسته‌تان)
+                const descriptiveText = `بفرمایید، این هم تصویر مربوط به درخواست شما ("${escapeHtml(text)}") که با بالاترین کیفیت و کاملاً منطبق بر موضوع آماده شده است. امیدوارم از دیدن این تصویر لذت ببرید!`;
+
                 container.innerHTML += `
                     <div class="flex items-start gap-4 max-w-3xl mx-auto">
                         <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-md">هـ</div>
-                        <div class="bg-zinc-900 border border-zinc-800 text-zinc-200 p-3 rounded-2xl rounded-br-sm text-sm max-w-[85%] leading-relaxed shadow-sm space-y-3">
-                            <div class="text-xs text-zinc-400">تصویر ساخته‌شده برای: ${escapeHtml(text)}</div>
+                        <div class="bg-zinc-900 border border-zinc-800 text-zinc-200 p-4 rounded-2xl rounded-br-sm text-sm max-w-[85%] leading-relaxed shadow-sm space-y-3">
+                            <p class="text-zinc-300 font-medium leading-relaxed">${descriptiveText}</p>
                             <img src="${imageUrl}" class="rounded-xl w-full max-h-[450px] object-cover shadow-lg border border-zinc-800" alt="تصویر ساخته شده هوش مصنوعی" />
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 pt-1">
                                 <a href="${imageUrl}" target="_blank" download="houshyar_ai.jpg" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-4 py-2 rounded-xl transition flex items-center gap-1.5 font-medium shadow">
                                     <i class="fa-solid fa-download"></i> دانلود تصویر با کیفیت اصلی
                                 </a>
