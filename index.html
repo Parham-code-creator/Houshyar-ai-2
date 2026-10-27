@@ -936,17 +936,17 @@
             t = t.replace(/عکس/g, '').replace(/تصویر/g, '').replace(/ساخت/g, '').replace(/بکش/g, '').replace(/ساز/g, '').trim();
             
             const dictionary = {
-                'فلوکس واگن': 'Volkswagen Beetle classic car, highly detailed, photorealistic',
-                'فلوکسواگن': 'Volkswagen Beetle classic car, highly detailed, photorealistic',
-                'ماشین فلوکس واگن': 'Volkswagen Beetle classic car, photorealistic',
-                'ماشین': 'modern car, realistic',
-                'فضانورد': 'astronaut in space suit, highly detailed',
-                'پاسارگاد': 'Pasargadae ancient historical monument in Iran',
-                'سگ': 'cute dog, realistic photography',
-                'گربه': 'cute cat, realistic photography',
-                'خانه': 'modern luxury house architecture',
-                'طبیعت': 'beautiful nature landscape, 4k',
-                'گل': 'vibrant flower macro photography'
+                'فلوکس واگن': 'Volkswagen Beetle classic retro car on a scenic road, highly detailed, photorealistic',
+                'فلوکسواگن': 'Volkswagen Beetle classic retro car on a scenic road, highly detailed, photorealistic',
+                'ماشین فلوکس واگن': 'Volkswagen Beetle classic retro car, photorealistic',
+                'ماشین': 'modern sports car, realistic, 4k',
+                'فضانورد': 'astronaut standing on alien planet, highly detailed sci-fi art',
+                'پاسارگاد': 'Pasargadae ancient historical monument in Iran, cinematic lighting',
+                'سگ': 'cute golden retriever dog, professional portrait photography',
+                'گربه': 'cute fluffy cat, detailed fur, photography',
+                'خانه': 'modern luxury villa architecture, evening lighting',
+                'طبیعت': 'breathtaking nature landscape mountains and river, 4k',
+                'گل': 'vibrant red rose flower macro photography'
             };
 
             for (let key in dictionary) {
@@ -954,7 +954,7 @@
                     return dictionary[key];
                 }
             }
-            return t.length > 0 ? t + ", high quality, detailed" : "masterpiece, high quality photography";
+            return t.length > 0 ? t + ", high quality, detailed photography" : "masterpiece, high quality digital art";
         }
 
         async function generateImage() {
@@ -990,19 +990,16 @@
                 <div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-md">هـ</div>
                     <div class="bg-zinc-900 border border-zinc-800 text-zinc-400 px-4 py-3 rounded-2xl rounded-br-sm text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال ساخت تصویر بدون معطلی...
+                        <i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال خلق تصویر با موتور جدید و بدون محدودیت...
                     </div>
                 </div>`;
             container.scrollTop = container.scrollHeight;
 
             const cleanPrompt = fastTranslate(text);
-            const randomSeed = Math.floor(Math.random() * 999999);
+            const randomSeed = Math.floor(Math.random() * 9999999);
             
-            // استفاده از سرویس پایدار Prodia برای جلوگیری از ارور لیمیت
-            const imageUrl = `https://images.weserv.nl/?url=api.prodia.com/v1/generate?prompt=${encodeURIComponent(cleanPrompt)}&model=v1-5-pruned-emaonly.safetensors&seed=${randomSeed}`;
-            
-            // جایگزین پایدار مستقیم با سرویس قدرتمند pollinations بدون لیمیت زمانی
-            const safeImageUrl = `https://pollinations.ai/p/${encodeURIComponent(cleanPrompt)}?width=1024&height=768&seed=${randomSeed}&nologo=true`;
+            // استفاده از موتور کاملاً پایدار و جایگزین مستقیم بدون ارور لیمیت
+            const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=1024&height=768&seed=${randomSeed}&nologo=true&model=flux`;
 
             const img = new Image();
             img.onload = () => {
@@ -1016,9 +1013,9 @@
                         <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-md">هـ</div>
                         <div class="bg-zinc-900 border border-zinc-800 text-zinc-200 p-3 rounded-2xl rounded-br-sm text-sm max-w-[85%] leading-relaxed shadow-sm space-y-3">
                             <div class="text-xs text-zinc-400">تصویر ساخته‌شده برای: ${escapeHtml(text)}</div>
-                            <img src="${safeImageUrl}" class="rounded-xl w-full max-h-[450px] object-cover shadow-lg border border-zinc-800" alt="تصویر ساخته شده هوش مصنوعی" />
+                            <img src="${imageUrl}" class="rounded-xl w-full max-h-[450px] object-cover shadow-lg border border-zinc-800" alt="تصویر ساخته شده هوش مصنوعی" />
                             <div class="flex items-center gap-2">
-                                <a href="${safeImageUrl}" target="_blank" download="houshyar_ai.jpg" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-4 py-2 rounded-xl transition flex items-center gap-1.5 font-medium shadow">
+                                <a href="${imageUrl}" target="_blank" download="houshyar_ai.jpg" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-4 py-2 rounded-xl transition flex items-center gap-1.5 font-medium shadow">
                                     <i class="fa-solid fa-download"></i> دانلود تصویر با کیفیت اصلی
                                 </a>
                             </div>
@@ -1042,7 +1039,7 @@
                 container.scrollTop = container.scrollHeight;
             };
 
-            img.src = safeImageUrl;
+            img.src = imageUrl;
         }
 
         async function sendMessage() {
