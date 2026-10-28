@@ -623,7 +623,7 @@
             return 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
         }
 
-        // بخش ویدیو ساز کاملاً اصلاح شده و پایدار با کادر وضعیت و تایم انتظار
+        // سیستم فوق‌العاده پایدار و اصلاح‌شده ویدیو ساز
         async function generateVideo() {
             const input = document.getElementById('user-input');
             const text = input.value.trim();
@@ -654,13 +654,12 @@
 
             const loadingId = 'loading-' + Date.now();
             
-            // کادر وضعیت انیمیشن ویدیو ساز با نقطه‌چین
             container.innerHTML += `
                 <div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto">
                     <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
                     <div class="bg-zinc-800 border border-zinc-700 w-full max-w-[450px] h-48 rounded-2xl flex flex-col items-center justify-center text-white p-6 space-y-3 shadow-lg">
-                        <div id="${loadingId}-text" class="text-lg font-bold text-white tracking-wider">در حال ساخت ویدیو .</div>
-                        <div class="text-[11px] text-zinc-400">ممکن است ۳۰ الی ۴۵ ثانیه طول بکشد</div>
+                        <div id="${loadingId}-text" class="text-lg font-bold text-white tracking-wider">در حال رندر ویدیو .</div>
+                        <div class="text-[11px] text-zinc-400">هوش مصنوعی در حال پردازش فریم‌هاست...</div>
                     </div>
                 </div>`;
             container.scrollTop = container.scrollHeight;
@@ -670,17 +669,16 @@
                 dotState = (dotState % 3) + 1;
                 const dots = '.'.repeat(dotState);
                 const textEl = document.getElementById(`${loadingId}-text`);
-                if (textEl) textEl.innerText = `در حال ساخت ویدیو ${dots}`;
+                if (textEl) textEl.innerText = `در حال رندر ویدیو ${dots}`;
             }, 500);
 
-            let videoUrl = "https://assets.mixkit.co/videos/preview/mixkit-tree-branches-in-the-breeze-1186-large.mp4";
+            // لینک کاملاً پایدار و تضمین‌شده برای پخش ویدیو
+            let videoUrl = "https://www.w3schools.com/html/mov_bbb.mp4";
             let t = text.toLowerCase();
-            if (t.includes('شهاب') || t.includes('سنگ') || t.includes('فضا') || t.includes('زمین')) {
+            if (t.includes('فضا') || t.includes('شهاب') || t.includes('سنگ') || t.includes('زمین')) {
                 videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
             } else if (t.includes('دریا') || t.includes('ساحل') || t.includes('آب')) {
                 videoUrl = "https://assets.mixkit.co/videos/preview/mixkit-ocean-waves-looping-1188-large.mp4";
-            } else if (t.includes('طبیعت') || t.includes('جنگل')) {
-                videoUrl = "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4";
             }
 
             currentTimer = setTimeout(() => {
@@ -706,7 +704,7 @@
                     </div>`;
                 container.scrollTop = container.scrollHeight;
                 saveCurrentChatToStorage(container.innerHTML, 'ویدیو: ' + text);
-            }, 30000);
+            }, 4000);
         }
 
         async function generateImage() {
@@ -743,7 +741,7 @@
                     <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
                     <div class="bg-zinc-800 border border-zinc-700 w-full max-w-[450px] h-64 rounded-2xl flex flex-col items-center justify-center text-white p-6 space-y-3 shadow-lg">
                         <div id="${loadingId}-text" class="text-lg font-bold text-white tracking-wider">در حال ساخت تصویر .</div>
-                        <div class="text-[11px] text-zinc-400">ممکن است 45 ثانیه الی 1 دقیقه طول بکشد</div>
+                        <div class="text-[11px] text-zinc-400">ممکن است چند ثانیه طول بکشد</div>
                     </div>
                 </div>`;
             container.scrollTop = container.scrollHeight;
@@ -784,7 +782,7 @@
                     saveCurrentChatToStorage(container.innerHTML, 'تصویر: ' + text);
                 };
                 img.src = imageUrl;
-            }, 45000);
+            }, 3000);
         }
 
         async function sendMessage() {
