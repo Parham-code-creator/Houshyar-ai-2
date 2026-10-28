@@ -75,14 +75,19 @@
                     </button>
                 </div>
 
-                <!-- دسترسی به هوشیار آپارات و یوتیوب -->
-                <div class="grid grid-cols-2 gap-1.5 pt-1">
-                    <a href="https://www.aparat.com" target="_blank" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs py-1.5 rounded-lg transition flex items-center justify-center gap-1 font-medium">
-                        <i class="fa-solid fa-video"></i> هوشیار آپارات
-                    </a>
-                    <a href="https://www.youtube.com" target="_blank" class="bg-red-700/20 hover:bg-red-700/30 text-red-300 border border-red-600/30 text-xs py-1.5 rounded-lg transition flex items-center justify-center gap-1 font-medium">
-                        <i class="fa-brands fa-youtube"></i> هوشیار یوتیوب
-                    </a>
+                <!-- دسترسی به هوشیار آپارات و یوتیوب + نکته فیلترشکن -->
+                <div class="space-y-1.5 pt-1">
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <a href="https://www.aparat.com" target="_blank" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs py-1.5 rounded-lg transition flex items-center justify-center gap-1 font-medium">
+                            <i class="fa-solid fa-video"></i> هوشیار آپارات
+                        </a>
+                        <a href="https://www.youtube.com" target="_blank" class="bg-red-700/20 hover:bg-red-700/30 text-red-300 border border-red-600/30 text-xs py-1.5 rounded-lg transition flex items-center justify-center gap-1 font-medium">
+                            <i class="fa-brands fa-youtube"></i> هوشیار یوتیوب
+                        </a>
+                    </div>
+                    <div class="text-[10px] text-zinc-500 text-center leading-tight">
+                        نکته: برای رفتن به هوشیار یوتیوب فیلتر شکن باید روشن باشد.
+                    </div>
                 </div>
             </div>
 
@@ -556,7 +561,6 @@
             }
         }
 
-        // سیستم هوشمند تولید تصویر پایدار با استفاده از بانک تصاویر باکیفیت و انحصاری بدون محدودیت
         function getStableImageUrl(text) {
             let t = text.toLowerCase();
             if (t.includes('شهاب') || t.includes('سنگ') || t.includes('فضا') || t.includes('کهکشان')) {
@@ -571,7 +575,6 @@
             if (t.includes('شهر') || t.includes('برج')) {
                 return 'https://images.unsplash.com/photo-1477959858617-67f30bc75b82?auto=format&fit=crop&w=1200&q=80';
             }
-            // تصویر عمومی باکیفیت بر اساس متن تصادفی
             return 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
         }
 
@@ -635,6 +638,7 @@
             }, 2500);
         }
 
+        // ساخت تصویر با کادر طوسی و انیمیشن نقطه‌چین دقیق ۱ دقیقه‌ای
         async function generateImage() {
             const input = document.getElementById('user-input');
             const text = input.value.trim();
@@ -661,24 +665,52 @@
             input.value = '';
             container.scrollTop = container.scrollHeight;
 
-            const imageUrl = getStableImageUrl(text);
+            const loadingId = 'img-loading-' + Date.now();
             
-            const img = new Image();
-            img.onload = () => {
-                incrementQuota('img');
-                const desc = `بفرمایید، این هم از تصویر درخواستی شما ("${escapeHtml(text)}"):`;
-                container.innerHTML += `
-                    <div class="flex items-start gap-4 max-w-3xl mx-auto">
-                        <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
-                        <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm space-y-3 max-w-[85%]">
-                            <p class="text-zinc-300">${desc}</p>
-                            <img src="${imageUrl}" class="rounded-xl w-full max-h-[400px] object-cover" />
-                        </div>
-                    </div>`;
-                container.scrollTop = container.scrollHeight;
-                saveCurrentChatToStorage(container.innerHTML, 'تصویر: ' + text);
-            };
-            img.src = imageUrl;
+            // باکس طوسی با متن درخواست شده و انیمیشن نقطه‌چین
+            container.innerHTML += `
+                <div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto">
+                    <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
+                    <div class="bg-zinc-800 border border-zinc-700 w-full max-w-[450px] h-64 rounded-2xl flex flex-col items-center justify-center text-white p-6 space-y-3 shadow-lg">
+                        <div id="${loadingId}-text" class="text-lg font-bold text-white tracking-wider">در حال ساخت تصویر .</div>
+                        <div class="text-[11px] text-zinc-400">ممکن است 1 دقیقه طول بکشد</div>
+                    </div>
+                </div>`;
+            container.scrollTop = container.scrollHeight;
+
+            // چرخه نقطه‌چین: 1 نقطه -> 2 نقطه -> 3 نقطه -> 1 نقطه ... (هر ۵۰۰ میلی‌ثانیه)
+            let dotState = 1;
+            const dotInterval = setInterval(() => {
+                dotState = (dotState % 3) + 1;
+                const dots = '.'.repeat(dotState);
+                const textEl = document.getElementById(`${loadingId}-text`);
+                if (textEl) textEl.innerText = `در حال ساخت تصویر ${dots}`;
+            }, 500);
+
+            // دقیقاً ۱ دقیقه (۶۰۰۰۰ میلی‌ثانیه) مکث برای شبیه‌سازی رندر واقعی هوش مصنوعی
+            setTimeout(() => {
+                clearInterval(dotInterval);
+                const el = document.getElementById(loadingId);
+                if (el) el.remove();
+
+                const imageUrl = getStableImageUrl(text);
+                const img = new Image();
+                img.onload = () => {
+                    incrementQuota('img');
+                    const desc = `بفرمایید، این هم از تصویر درخواستی شما ("${escapeHtml(text)}"):`;
+                    container.innerHTML += `
+                        <div class="flex items-start gap-4 max-w-3xl mx-auto">
+                            <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
+                            <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm space-y-3 max-w-[85%]">
+                                <p class="text-zinc-300">${desc}</p>
+                                <img src="${imageUrl}" class="rounded-xl w-full max-h-[400px] object-cover" />
+                            </div>
+                        </div>`;
+                    container.scrollTop = container.scrollHeight;
+                    saveCurrentChatToStorage(container.innerHTML, 'تصویر: ' + text);
+                };
+                img.src = imageUrl;
+            }, 60000);
         }
 
         async function sendMessage() {
