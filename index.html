@@ -126,7 +126,7 @@
                 <button onclick="toggleSidebar()" class="text-zinc-400 hover:text-zinc-200 p-2"><i class="fa-solid fa-bars text-lg"></i></button>
                 <div class="flex items-center gap-2">
                     <span class="font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 text-lg">هوشیار AI 2</span>
-                    <span class="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-md border border-zinc-700">متن | تصویر | انگلیسی</span>
+                    <span class="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-md border border-zinc-700">هوشمند (فارسی / انگلیسی)</span>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -149,14 +149,14 @@
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
                 </div>
                 <h1 class="text-2xl md:text-3xl font-bold text-zinc-100">سلام! من هوشیار AI 2 هستم، چطور می‌توانم کمکتان کنم؟</h1>
-                <p class="text-sm text-zinc-400">می‌توانید چت متنی، چت صوتی، ساخت تصویر یا مکالمه انگلیسی انجام دهید.</p>
+                <p class="text-sm text-zinc-400">به هر زبانی (فارسی یا انگلیسی) بنویسید، به همان زبان پاسخ خواهم داد.</p>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full pt-4 text-right">
                     <div onclick="sendPreset('یک شعر کوتاه درباره هوش مصنوعی بگو')" class="p-3.5 bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 rounded-xl cursor-pointer transition text-sm text-zinc-300">
                         ✨ یک شعر کوتاه درباره هوش مصنوعی بگو
                     </div>
-                    <div onclick="sendPreset('Translate this text to English: هوش مصنوعی آینده جهان را تغییر خواهد داد')" class="p-3.5 bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 rounded-xl cursor-pointer transition text-sm text-zinc-300">
-                        🇬🇧 ترجمه متن به انگلیسی
+                    <div onclick="sendPreset('Write a short poem about artificial intelligence')" class="p-3.5 bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 rounded-xl cursor-pointer transition text-sm text-zinc-300">
+                        🇬🇧 Write a poem in English
                     </div>
                 </div>
             </div>
@@ -165,20 +165,15 @@
         <!-- باکس ورودی پیام -->
         <div class="p-4 bg-zinc-950 border-t border-zinc-800/80">
             <div class="max-w-3xl mx-auto relative bg-zinc-900 border border-zinc-800 rounded-2xl shadow-lg focus-within:border-indigo-500/50 transition flex items-center px-3 py-2">
-                <!-- دکمه سه‌حالته: متن / تصویر / انگلیسی -->
-                <button id="mode-toggle-btn" onclick="toggleMode()" class="text-zinc-400 hover:text-indigo-400 px-2.5 py-1.5 rounded-xl transition text-xs flex items-center gap-1 border border-zinc-800 bg-zinc-950 shrink-0" title="تغییر حالت بین متن، تصویر و انگلیسی">
-                    <i class="fa-solid fa-message text-indigo-400" id="mode-icon"></i>
-                    <span id="mode-text">متن</span>
-                </button>
-
-                <textarea id="user-input" rows="1" placeholder="پیام یا توصیف تصویر خود را بنویسید..." class="flex-1 bg-transparent text-zinc-100 placeholder-zinc-500 text-sm p-3 focus:outline-none resize-none max-h-32" onkeydown="handleKeyPress(event)"></textarea>
+                
+                <textarea id="user-input" rows="1" placeholder="پیام خود را به فارسی یا انگلیسی بنویسید..." class="flex-1 bg-transparent text-zinc-100 placeholder-zinc-500 text-sm p-3 focus:outline-none resize-none max-h-32" onkeydown="handleKeyPress(event)"></textarea>
 
                 <div class="flex items-center gap-2">
                     <button id="mic-btn" onclick="toggleVoiceInput()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 w-9 h-9 rounded-xl flex items-center justify-center transition" title="ورودی صوتی">
                         <i class="fa-solid fa-microphone text-sm" id="mic-icon"></i>
                     </button>
                     <!-- دکمه ارسال -->
-                    <button onclick="handleSendAction()" id="send-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white w-9 h-9 rounded-xl flex items-center justify-center transition shadow-md" title="ارسال پیام">
+                    <button onclick="sendMessage()" id="send-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white w-9 h-9 rounded-xl flex items-center justify-center transition shadow-md" title="ارسال پیام">
                         <i class="fa-solid fa-arrow-up text-sm"></i>
                     </button>
                     <!-- دکمه متوقف کردن عملیات -->
@@ -387,7 +382,6 @@
         let chatsDB = [];
         let receiptsDB = [];
         let ticketsDB = [];
-        let inputMode = 'text'; // 'text' | 'image' | 'english'
         let selectedDuration = '1'; // '1', '3', '6', '12'
         let selectedPlan = null;
         let recognition = null;
@@ -512,29 +506,6 @@
             if (btn) btn.classList.remove('bg-red-600', 'animate-pulse');
         }
 
-        function toggleMode() {
-            const icon = document.getElementById('mode-icon');
-            const text = document.getElementById('mode-text');
-            const input = document.getElementById('user-input');
-
-            if (inputMode === 'text') {
-                inputMode = 'image';
-                icon.className = 'fa-solid fa-image text-purple-400';
-                text.innerText = 'تصویر';
-                input.placeholder = 'توصیف تصویری که می‌خواهید ساخته شود...';
-            } else if (inputMode === 'image') {
-                inputMode = 'english';
-                icon.className = 'fa-solid fa-language text-emerald-400';
-                text.innerText = 'انگلیسی';
-                input.placeholder = 'Type your message in English...';
-            } else {
-                inputMode = 'text';
-                icon.className = 'fa-solid fa-message text-indigo-400';
-                text.innerText = 'متن';
-                input.placeholder = 'پیام خود را بنویسید...';
-            }
-        }
-
         function newChat() {
             currentChatId = 'chat_' + Date.now();
             document.getElementById('chat-container').innerHTML = `
@@ -543,17 +514,11 @@
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                     </div>
                     <h1 class="text-2xl md:text-3xl font-bold text-zinc-100">سلام! من هوشیار AI 2 هستم، چطور می‌توانم کمکتان کنم؟</h1>
-                    <p class="text-sm text-zinc-400">می‌توانید چت متنی، چت صوتی، ساخت تصویر یا مکالمه انگلیسی انجام دهید.</p>
+                    <p class="text-sm text-zinc-400">به هر زبانی (فارسی یا انگلیسی) بنویسید، به همان زبان پاسخ خواهم داد.</p>
                 </div>`;
         }
 
         function clearChat() { newChat(); }
-
-        function handleSendAction() {
-            if (inputMode === 'image') generateImage();
-            else if (inputMode === 'english') sendEnglishMessage();
-            else sendMessage();
-        }
 
         function setProcessingState(isProcessing) {
             const sendBtn = document.getElementById('send-btn');
@@ -601,25 +566,107 @@
             document.getElementById('user-input').focus();
         }
 
-        // سیستم پخش صوتی اصلاح‌شده و پایدار با تشخیص خودکار زبان (فارسی / انگلیسی)
+        // پخش صوتی خودکار با تشخیص زبان متن
         function speakText(encodedText) {
             const decodedText = decodeURIComponent(encodedText);
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(decodedText);
-                
-                // تشخیص ساده زبان برای انتخاب ویس مناسب
-                const isEng = /^[A-Za-z0-9\s.,?!@#$%^&*()_+-=;:""'']+$/.test(decodedText.substring(0, 15));
-                utterance.lang = isEng ? 'en-US' : 'fa-IR';
-                
-                utterance.onerror = (e) => {
-                    console.error('Speech synthesis error', e);
-                };
-                
+                const isEnglish = /^[A-Za-z0-9\s.,?!@#$%^&*()_+-=;:""'']+$/.test(decodedText.substring(0, 15));
+                utterance.lang = isEnglish ? 'en-US' : 'fa-IR';
                 window.speechSynthesis.speak(utterance);
             } else {
                 alert('مرورگر شما از پخش صوتی پشتیبانی نمی‌کند.');
             }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            // تشخیص اینکه آیا درخواست ساخت تصویر است یا مکالمه متنی
+            if (text.startsWith('/image') || text.startsWith('تصویر') || text.startsWith('Generate image')) {
+                generateImage(text.replace(/^\/image|تصویر|Generate image/i, '').trim() || text);
+                return;
+            }
+
+            const quota = checkUserQuota('msg');
+            if (!quota.allowed) { alert(quota.message); if (!currentUser) openAuthModal(); return; }
+
+            setProcessingState(true);
+            const container = document.getElementById('chat-container');
+            const welcome = document.getElementById('welcome-screen');
+            if (welcome) welcome.remove();
+
+            const encodedUserText = encodeURIComponent(text);
+
+            container.innerHTML += `
+                <div class="flex items-start gap-4 max-w-3xl mx-auto justify-end">
+                    <div class="bg-indigo-600 text-white px-4 py-3 rounded-2xl text-sm space-y-2 max-w-[85%]">
+                        <div>${escapeHtml(text)}</div>
+                        <div class="flex items-center gap-3 pt-1 text-[11px] text-indigo-200 border-t border-indigo-500/40">
+                            <button onclick="copyText('${encodedUserText}')" class="hover:text-white flex items-center gap-1"><i class="fa-regular fa-copy"></i> کپی</button>
+                            <button onclick="editMessage('${encodedUserText}')" class="hover:text-white flex items-center gap-1"><i class="fa-solid fa-pen"></i> ویرایش</button>
+                        </div>
+                    </div>
+                </div>`;
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
+
+            let aiReply = "پاسخ هوشیار AI 2 آماده است.";
+            currentAbortController = new AbortController();
+            
+            // تشخیص خودکار زبان کاربر برای تعیین زبان پاسخ‌دهی هوش مصنوعی
+            const isUserEnglish = /^[A-Za-z0-9\s.,?!@#$%^&*()_+-=;:""'']+$/.test(text.substring(0, 15));
+            const systemPrompt = isUserEnglish ? "You are an AI assistant. You must reply strictly in English based on the user's input." : "شما یک دستیار هوش مصنوعی هستید. به زبان فارسی روان و دقیق پاسخ دهید.";
+
+            try {
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer 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` },
+                    body: JSON.stringify({ 
+                        model: "openai/gpt-oss-120b", 
+                        messages: [
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: text }
+                        ] 
+                    }),
+                    signal: currentAbortController.signal
+                });
+                const data = await res.json();
+                if (data.choices && data.choices[0]) aiReply = data.choices[0].message.content;
+            } catch(e) {
+                if (e.name === 'AbortError') {
+                    setProcessingState(false);
+                    return;
+                }
+            }
+
+            setProcessingState(false);
+            incrementQuota('msg');
+            
+            const encodedAiText = encodeURIComponent(aiReply);
+            const encodedSpeechText = encodeURIComponent(aiReply);
+            
+            container.innerHTML += `
+                <div class="flex items-start gap-4 max-w-3xl mx-auto">
+                    <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
+                    <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm text-zinc-200 whitespace-pre-line space-y-3 max-w-[85%]">
+                        <div>${escapeHtml(aiReply)}</div>
+                        <div class="flex items-center gap-3 pt-2 text-zinc-400 text-xs border-t border-zinc-800 justify-between">
+                            <div class="flex items-center gap-3">
+                                <button onclick="copyText('${encodedAiText}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-regular fa-copy"></i> کپی پاسخ</button>
+                                <button onclick="speakText('${encodedSpeechText}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-solid fa-volume-high"></i> پخش صوتی</button>
+                            </div>
+                        </div>
+                        <div class="text-[11px] text-zinc-500 border-t border-zinc-800/80 pt-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check text-indigo-400"></i> اگر چیز های دیگری لازم داشتی در خدمتم
+                        </div>
+                    </div>
+                </div>`;
+            container.scrollTop = container.scrollHeight;
+            saveCurrentChatToStorage(container.innerHTML, text);
         }
 
         function getStableImageUrl(text) {
@@ -639,9 +686,7 @@
             return 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
         }
 
-        async function generateImage() {
-            const input = document.getElementById('user-input');
-            const text = input.value.trim();
+        async function generateImage(text) {
             if (!text) return;
             const quota = checkUserQuota('img');
             if (!quota.allowed) { alert(quota.message); if (!currentUser) openAuthModal(); return; }
@@ -657,23 +702,17 @@
                 <div class="flex items-start gap-4 max-w-3xl mx-auto justify-end">
                     <div class="bg-purple-600 text-white px-4 py-3 rounded-2xl text-sm space-y-2 max-w-[85%]">
                         <div>🎨 ${escapeHtml(text)}</div>
-                        <div class="flex items-center gap-3 pt-1 text-[11px] text-purple-200 border-t border-purple-500/40">
-                            <button onclick="copyText('${encodedUserText}')" class="hover:text-white flex items-center gap-1"><i class="fa-regular fa-copy"></i> کپی متن</button>
-                            <button onclick="editMessage('${encodedUserText}')" class="hover:text-white flex items-center gap-1"><i class="fa-solid fa-pen"></i> ویرایش پیام</button>
-                        </div>
                     </div>
                 </div>`;
-            input.value = '';
+            document.getElementById('user-input').value = '';
             container.scrollTop = container.scrollHeight;
 
             const loadingId = 'img-loading-' + Date.now();
-            
             container.innerHTML += `
                 <div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto">
                     <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
                     <div class="bg-zinc-800 border border-zinc-700 w-full max-w-[450px] h-64 rounded-2xl flex flex-col items-center justify-center text-white p-6 space-y-3 shadow-lg">
                         <div id="${loadingId}-text" class="text-lg font-bold text-white tracking-wider">در حال ساخت تصویر .</div>
-                        <div class="text-[11px] text-zinc-400">ممکن است چند ثانیه طول بکشد</div>
                     </div>
                 </div>`;
             container.scrollTop = container.scrollHeight;
@@ -698,16 +737,11 @@
                 const img = new Image();
                 img.onload = () => {
                     incrementQuota('img');
-                    const desc = `بفرمایید، این هم از تصویر درخواستی شما ("${escapeHtml(text)}"):`;
                     container.innerHTML += `
                         <div class="flex items-start gap-4 max-w-3xl mx-auto">
                             <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
                             <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm space-y-3 max-w-[85%]">
-                                <p class="text-zinc-300">${desc}</p>
                                 <img src="${imageUrl}" class="rounded-xl w-full max-h-[400px] object-cover" />
-                                <div class="text-[11px] text-zinc-500 border-t border-zinc-800/80 pt-2 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-circle-check text-indigo-400"></i> اگر چیز های دیگری لازم داشتی در خدمتم
-                                </div>
                             </div>
                         </div>`;
                     container.scrollTop = container.scrollHeight;
@@ -715,157 +749,6 @@
                 };
                 img.src = imageUrl;
             }, 2000);
-        }
-
-        // ارسال پیام انگلیسی با دستورالعمل اختصاصی به هوش مصنوعی برای پاسخگویی به انگلیسی
-        async function sendEnglishMessage() {
-            const input = document.getElementById('user-input');
-            const text = input.value.trim();
-            if (!text) return;
-            const quota = checkUserQuota('msg');
-            if (!quota.allowed) { alert(quota.message); if (!currentUser) openAuthModal(); return; }
-
-            setProcessingState(true);
-            const container = document.getElementById('chat-container');
-            const welcome = document.getElementById('welcome-screen');
-            if (welcome) welcome.remove();
-
-            const encodedUserText = encodeURIComponent(text);
-
-            container.innerHTML += `
-                <div class="flex items-start gap-4 max-w-3xl mx-auto justify-end">
-                    <div class="bg-emerald-600 text-white px-4 py-3 rounded-2xl text-sm space-y-2 max-w-[85%]">
-                        <div>🇬🇧 ${escapeHtml(text)}</div>
-                        <div class="flex items-center gap-3 pt-1 text-[11px] text-emerald-200 border-t border-emerald-500/40">
-                            <button onclick="copyText('${encodedUserText}')" class="hover:text-white flex items-center gap-1"><i class="fa-regular fa-copy"></i> Copy</button>
-                            <button onclick="editMessage('${encodedUserText}')" class="hover:text-white flex items-center gap-1"><i class="fa-solid fa-pen"></i> Edit</button>
-                        </div>
-                    </div>
-                </div>`;
-            input.value = '';
-            container.scrollTop = container.scrollHeight;
-
-            let aiReply = "Hello! How can I help you today?";
-            currentAbortController = new AbortController();
-            
-            try {
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer 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` },
-                    body: JSON.stringify({ 
-                        model: "openai/gpt-oss-120b", 
-                        messages: [
-                            { role: "system", content: "You are an AI assistant. You must reply strictly in English." },
-                            { role: "user", content: text }
-                        ] 
-                    }),
-                    signal: currentAbortController.signal
-                });
-                const data = await res.json();
-                if (data.choices && data.choices[0]) aiReply = data.choices[0].message.content;
-            } catch(e) {
-                if (e.name === 'AbortError') {
-                    setProcessingState(false);
-                    return;
-                }
-            }
-
-            setProcessingState(false);
-            incrementQuota('msg');
-            const encodedAiText = encodeURIComponent(aiReply);
-            const encodedSpeechText = encodeURIComponent(aiReply);
-            
-            container.innerHTML += `
-                <div class="flex items-start gap-4 max-w-3xl mx-auto">
-                    <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
-                    <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm text-zinc-200 whitespace-pre-line space-y-3 max-w-[85%]">
-                        <div>${escapeHtml(aiReply)}</div>
-                        <div class="flex items-center gap-3 pt-2 text-zinc-400 text-xs border-t border-zinc-800 justify-between">
-                            <div class="flex items-center gap-3">
-                                <button onclick="copyText('${encodedAiText}')" class="hover:text-emerald-400 flex items-center gap-1"><i class="fa-regular fa-copy"></i> Copy Response</button>
-                                <button onclick="speakText('${encodedSpeechText}')" class="hover:text-emerald-400 flex items-center gap-1"><i class="fa-solid fa-volume-high"></i> Voice Play</button>
-                            </div>
-                        </div>
-                        <div class="text-[11px] text-zinc-500 border-t border-zinc-800/80 pt-2 flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-check text-emerald-400"></i> Let me know if you need anything else!
-                        </div>
-                    </div>
-                </div>`;
-            container.scrollTop = container.scrollHeight;
-            saveCurrentChatToStorage(container.innerHTML, '[EN] ' + text);
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('user-input');
-            const text = input.value.trim();
-            if (!text) return;
-            const quota = checkUserQuota('msg');
-            if (!quota.allowed) { alert(quota.message); if (!currentUser) openAuthModal(); return; }
-
-            setProcessingState(true);
-            const container = document.getElementById('chat-container');
-            const welcome = document.getElementById('welcome-screen');
-            if (welcome) welcome.remove();
-
-            const encodedUserText = encodeURIComponent(text);
-
-            container.innerHTML += `
-                <div class="flex items-start gap-4 max-w-3xl mx-auto justify-end">
-                    <div class="bg-indigo-600 text-white px-4 py-3 rounded-2xl text-sm space-y-2 max-w-[85%]">
-                        <div>${escapeHtml(text)}</div>
-                        <div class="flex items-center gap-3 pt-1 text-[11px] text-indigo-200 border-t border-indigo-500/40">
-                            <button onclick="copyText('${encodedUserText}')" class="hover:text-white flex items-center gap-1"><i class="fa-regular fa-copy"></i> کپی متن</button>
-                            <button onclick="editMessage('${encodedUserText}')" class="hover:text-white flex items-center gap-1"><i class="fa-solid fa-pen"></i> ویرایش پیام</button>
-                        </div>
-                    </div>
-                </div>`;
-            input.value = '';
-            container.scrollTop = container.scrollHeight;
-
-            let aiReply = "پاسخ هوشیار AI 2 به درخواست شما آماده است.";
-            currentAbortController = new AbortController();
-            
-            try {
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer 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` },
-                    body: JSON.stringify({ model: "openai/gpt-oss-120b", messages: [{ role: "user", content: text }] }),
-                    signal: currentAbortController.signal
-                });
-                const data = await res.json();
-                if (data.choices && data.choices[0]) aiReply = data.choices[0].message.content;
-            } catch(e) {
-                if (e.name === 'AbortError') {
-                    setProcessingState(false);
-                    return;
-                }
-            }
-
-            setProcessingState(false);
-            incrementQuota('msg');
-            const descriptivePrefix = `بفرمایید، این هم پاسخ متن شما درباره "${escapeHtml(text)}":\n\n`;
-            const fullReplyText = descriptivePrefix + aiReply;
-            const encodedAiText = encodeURIComponent(fullReplyText);
-            const encodedSpeechText = encodeURIComponent(aiReply);
-            
-            container.innerHTML += `
-                <div class="flex items-start gap-4 max-w-3xl mx-auto">
-                    <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
-                    <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm text-zinc-200 whitespace-pre-line space-y-3 max-w-[85%]">
-                        <div>${escapeHtml(fullReplyText)}</div>
-                        <div class="flex items-center gap-3 pt-2 text-zinc-400 text-xs border-t border-zinc-800 justify-between">
-                            <div class="flex items-center gap-3">
-                                <button onclick="copyText('${encodedAiText}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-regular fa-copy"></i> کپی پاسخ</button>
-                                <button onclick="speakText('${encodedSpeechText}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-solid fa-volume-high"></i> پخش صوتی</button>
-                            </div>
-                        </div>
-                        <div class="text-[11px] text-zinc-500 border-t border-zinc-800/80 pt-2 flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-check text-indigo-400"></i> اگر چیز های دیگری لازم داشتی در خدمتم
-                        </div>
-                    </div>
-                </div>`;
-            container.scrollTop = container.scrollHeight;
-            saveCurrentChatToStorage(container.innerHTML, text);
         }
 
         function loadUserChats() {
@@ -1038,14 +921,10 @@
         function sendPreset(text) {
             if (!currentUser) { alert('وارد شوید.'); openAuthModal(); return; }
             document.getElementById('user-input').value = text;
-            if(text.toLowerCase().includes('translate') || text.toLowerCase().includes('english')) {
-                inputMode = 'english';
-                toggleMode(); toggleMode(); // تنظیم حالت روی انگلیسی
-            }
-            handleSendAction();
+            sendMessage();
         }
 
-        function handleKeyPress(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendAction(); } }
+        function handleKeyPress(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
         function openAuthModal() { document.getElementById('auth-modal').style.display = 'flex'; }
         function closeAuthModal() { document.getElementById('auth-modal').style.display = 'none'; }
 
