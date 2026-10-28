@@ -535,19 +535,23 @@
             else sendMessage();
         }
 
-        function copyText(text) {
-            navigator.clipboard.writeText(text).then(() => alert('متن با موفقیت کپی شد!'));
+        // اصلاح تابع کپی برای دریافت متن به صورت ایمن
+        function copyText(encodedText) {
+            const decodedText = decodeURIComponent(encodedText);
+            navigator.clipboard.writeText(decodedText).then(() => alert('متن با موفقیت کپی شد!'));
         }
 
-        function editMessage(text) {
-            document.getElementById('user-input').value = text;
+        function editMessage(encodedText) {
+            const decodedText = decodeURIComponent(encodedText);
+            document.getElementById('user-input').value = decodedText;
             document.getElementById('user-input').focus();
         }
 
-        function speakText(text) {
+        function speakText(encodedText) {
+            const decodedText = decodeURIComponent(encodedText);
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
+                const utterance = new SpeechSynthesisUtterance(decodedText);
                 utterance.lang = 'fa-IR';
                 window.speechSynthesis.speak(utterance);
             }
@@ -574,7 +578,19 @@
             const welcome = document.getElementById('welcome-screen');
             if (welcome) welcome.remove();
 
-            container.innerHTML += `<div class="flex items-start gap-4 max-w-3xl mx-auto justify-end"><div class="bg-amber-600 text-white px-4 py-3 rounded-2xl text-sm">🎬 درخواست ساخت ویدیو: ${escapeHtml(text)}</div></div>`;
+            const encodedUserText = encodeURIComponent(text);
+
+            // دکمه‌های ویرایش و کپی روی پیام کاربر
+            container.innerHTML += `
+                <div class="flex items-start gap-4 max-w-3xl mx-auto justify-end">
+                    <div class="bg-amber-600 text-white px-4 py-3 rounded-2xl text-sm space-y-2 max-w-[85%]">
+                        <div>🎬 درخواست ساخت ویدیو: ${escapeHtml(text)}</div>
+                        <div class="flex items-center gap-3 pt-1 text-[11px] text-amber-200 border-t border-amber-500/40">
+                            <button onclick="copyText('${encodedUserText}')" class="hover:text-white flex items-center gap-1"><i class="fa-regular fa-copy"></i> کپی متن</button>
+                            <button onclick="editMessage('${encodedUserText}')" class="hover:text-white flex items-center gap-1"><i class="fa-solid fa-pen"></i> ویرایش پیام</button>
+                        </div>
+                    </div>
+                </div>`;
             input.value = '';
             container.scrollTop = container.scrollHeight;
 
@@ -604,10 +620,6 @@
                         <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm space-y-3 max-w-[85%]">
                             <p class="text-zinc-300 font-medium">${desc}</p>
                             <video src="${videoUrl}" controls autoplay muted loop class="rounded-xl w-full max-h-[380px] object-cover border border-zinc-800 shadow-lg"></video>
-                            <div class="flex items-center gap-3 pt-2 text-zinc-400 text-xs border-t border-zinc-800">
-                                <button onclick="copyText('${escapeHtml(desc)}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-regular fa-copy"></i> کپی متن</button>
-                                <button onclick="editMessage('${escapeHtml(text)}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-solid fa-pen"></i> ویرایش پیام</button>
-                            </div>
                         </div>
                     </div>`;
                 container.scrollTop = container.scrollHeight;
@@ -626,7 +638,18 @@
             const welcome = document.getElementById('welcome-screen');
             if (welcome) welcome.remove();
 
-            container.innerHTML += `<div class="flex items-start gap-4 max-w-3xl mx-auto justify-end"><div class="bg-purple-600 text-white px-4 py-3 rounded-2xl text-sm">🎨 ${escapeHtml(text)}</div></div>`;
+            const encodedUserText = encodeURIComponent(text);
+
+            container.innerHTML += `
+                <div class="flex items-start gap-4 max-w-3xl mx-auto justify-end">
+                    <div class="bg-purple-600 text-white px-4 py-3 rounded-2xl text-sm space-y-2 max-w-[85%]">
+                        <div>🎨 ${escapeHtml(text)}</div>
+                        <div class="flex items-center gap-3 pt-1 text-[11px] text-purple-200 border-t border-purple-500/40">
+                            <button onclick="copyText('${encodedUserText}')" class="hover:text-white flex items-center gap-1"><i class="fa-regular fa-copy"></i> کپی متن</button>
+                            <button onclick="editMessage('${encodedUserText}')" class="hover:text-white flex items-center gap-1"><i class="fa-solid fa-pen"></i> ویرایش پیام</button>
+                        </div>
+                    </div>
+                </div>`;
             input.value = '';
             container.scrollTop = container.scrollHeight;
 
@@ -643,10 +666,6 @@
                         <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm space-y-3 max-w-[85%]">
                             <p class="text-zinc-300">${desc}</p>
                             <img src="${imageUrl}" class="rounded-xl w-full max-h-[400px] object-cover" />
-                            <div class="flex items-center gap-3 pt-2 text-zinc-400 text-xs border-t border-zinc-800">
-                                <button onclick="copyText('${escapeHtml(desc)}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-regular fa-copy"></i> کپی متن</button>
-                                <button onclick="editMessage('${escapeHtml(text)}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-solid fa-pen"></i> ویرایش پیام</button>
-                            </div>
                         </div>
                     </div>`;
                 container.scrollTop = container.scrollHeight;
@@ -666,7 +685,19 @@
             const welcome = document.getElementById('welcome-screen');
             if (welcome) welcome.remove();
 
-            container.innerHTML += `<div class="flex items-start gap-4 max-w-3xl mx-auto justify-end"><div class="bg-indigo-600 text-white px-4 py-3 rounded-2xl text-sm">${escapeHtml(text)}</div></div>`;
+            const encodedUserText = encodeURIComponent(text);
+
+            // دکمه‌های کپی و ویرایش روی پیام کاربر
+            container.innerHTML += `
+                <div class="flex items-start gap-4 max-w-3xl mx-auto justify-end">
+                    <div class="bg-indigo-600 text-white px-4 py-3 rounded-2xl text-sm space-y-2 max-w-[85%]">
+                        <div>${escapeHtml(text)}</div>
+                        <div class="flex items-center gap-3 pt-1 text-[11px] text-indigo-200 border-t border-indigo-500/40">
+                            <button onclick="copyText('${encodedUserText}')" class="hover:text-white flex items-center gap-1"><i class="fa-regular fa-copy"></i> کپی متن</button>
+                            <button onclick="editMessage('${encodedUserText}')" class="hover:text-white flex items-center gap-1"><i class="fa-solid fa-pen"></i> ویرایش پیام</button>
+                        </div>
+                    </div>
+                </div>`;
             input.value = '';
             container.scrollTop = container.scrollHeight;
 
@@ -684,6 +715,8 @@
             incrementQuota('msg');
             const descriptivePrefix = `بفرمایید، این هم پاسخ متن شما درباره "${escapeHtml(text)}":\n\n`;
             const fullReplyText = descriptivePrefix + aiReply;
+            const encodedAiText = encodeURIComponent(fullReplyText);
+            const encodedSpeechText = encodeURIComponent(aiReply);
             
             container.innerHTML += `
                 <div class="flex items-start gap-4 max-w-3xl mx-auto">
@@ -691,9 +724,8 @@
                     <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm text-zinc-200 whitespace-pre-line space-y-3 max-w-[85%]">
                         <div>${escapeHtml(fullReplyText)}</div>
                         <div class="flex items-center gap-3 pt-2 text-zinc-400 text-xs border-t border-zinc-800">
-                            <button onclick="copyText('${escapeHtml(fullReplyText)}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-regular fa-copy"></i> کپی متن</button>
-                            <button onclick="editMessage('${escapeHtml(text)}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-solid fa-pen"></i> ویرایش پیام</button>
-                            <button onclick="speakText('${escapeHtml(aiReply)}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-solid fa-volume-high"></i> پخش صوتی</button>
+                            <button onclick="copyText('${encodedAiText}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-regular fa-copy"></i> کپی پاسخ</button>
+                            <button onclick="speakText('${encodedSpeechText}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-solid fa-volume-high"></i> پخش صوتی</button>
                         </div>
                     </div>
                 </div>`;
