@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پیام‌رسان و هوش مصنوعی هوشیار</title>
+    <title>هوش مصنوعی هوشیار (Houshyar AI)</title>
     <!-- فونت وزیرمتن -->
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <!-- Tailwind CSS -->
@@ -23,444 +23,960 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Vazirmatn', sans-serif; }
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
     </style>
 </head>
 <body class="bg-zinc-950 text-zinc-100 h-screen flex overflow-hidden">
 
-    <!-- بخش احراز هویت پیام‌رسان (شماره تلفن و کد تأیید) -->
-    <div id="auth-screen" class="fixed inset-0 bg-zinc-950 z-50 flex items-center justify-center p-4">
-        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-md w-full p-8 shadow-2xl space-y-6 text-center">
-            <div class="w-20 h-20 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-3xl mx-auto flex items-center justify-center shadow-lg shadow-indigo-500/20 text-3xl text-white">
-                <i class="fa-solid fa-paper-plane"></i>
-            </div>
-            <div>
-                <h2 class="text-2xl font-bold text-zinc-100">پیام‌رسان و هوش مصنوعی هوشیار</h2>
-                <p class="text-xs text-zinc-400 mt-1">سریع، امن و هوشمند</p>
-            </div>
-
-            <!-- مرحله ۱: ورود شماره تلفن -->
-            <div id="step-phone" class="space-y-4">
-                <div class="text-right">
-                    <label class="block text-xs font-medium text-zinc-400 mb-1">شماره تلفن همراه</label>
-                    <input type="tel" id="phone-input" placeholder="09123456789" class="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500 text-center tracking-widest font-mono">
-                </div>
-                <button onclick="sendVerificationCode()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-2xl transition text-sm shadow-md">
-                    ارسال کد تأیید
+    <!-- سایدبار -->
+    <aside id="sidebar" class="w-72 bg-zinc-900 border-l border-zinc-800 flex flex-col justify-between transition-all duration-300 z-20">
+        <div class="flex-1 flex flex-col min-h-0">
+            <div class="p-4 flex gap-2">
+                <button onclick="newChat()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700/60 py-2.5 px-3 rounded-xl flex items-center justify-between text-sm transition font-medium">
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-plus text-indigo-400"></i> گفتگوی جدید</span>
+                    <i class="fa-regular fa-pen-to-square text-zinc-400"></i>
                 </button>
             </div>
-
-            <!-- مرحله ۲: وارد کردن کد تأیید -->
-            <div id="step-code" class="space-y-4" style="display: none;">
-                <div class="text-xs text-indigo-400 bg-indigo-950/40 border border-indigo-500/30 p-2.5 rounded-xl">
-                    کد تأیید نمایشی هوشیار: <strong id="mock-code-display" class="font-mono text-white">1234</strong>
-                </div>
-                <div class="text-right">
-                    <label class="block text-xs font-medium text-zinc-400 mb-1">کد ۴ رقمی ارسال شده</label>
-                    <input type="text" id="code-input" placeholder="1234" maxlength="4" class="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-lg text-zinc-100 focus:outline-none focus:border-indigo-500 text-center tracking-[1em] font-mono">
-                </div>
-                <button onclick="verifyCode()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-2xl transition text-sm shadow-md">
-                    تأیید و ادامه
-                </button>
-            </div>
-
-            <!-- مرحله ۳: تکمیل پروفایل (نام و عکس) -->
-            <div id="step-profile" class="space-y-4 text-right" style="display: none;">
-                <div class="flex flex-col items-center justify-center space-y-2">
-                    <div class="relative w-20 h-20 rounded-full bg-zinc-800 border-2 border-indigo-500 flex items-center justify-center overflow-hidden cursor-pointer group" onclick="document.getElementById('profile-file').click()">
-                        <img id="profile-preview" src="" class="w-full h-full object-cover" style="display: none;">
-                        <div id="profile-placeholder" class="text-zinc-400 text-2xl"><i class="fa-solid fa-camera"></i></div>
-                    </div>
-                    <input type="file" id="profile-file" accept="image/*" class="hidden" onchange="previewProfileImage(event)">
-                    <span class="text-[11px] text-zinc-400">برای انتخاب عکس پروفایل کلیک کنید</span>
+            
+            <!-- وضعیت اشتراک و سهمیه‌ها -->
+            <div class="px-4 py-2 my-1 bg-zinc-950/60 border-y border-zinc-800/60 space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="text-zinc-400 font-medium">سطح اشتراک:</span>
+                    <span id="sub-tier-badge" class="px-2 py-0.5 bg-zinc-800 text-zinc-300 rounded-md font-bold text-[11px]">رایگان</span>
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-zinc-400 mb-1">نام نمایشی شما</label>
-                    <input type="text" id="reg-name" placeholder="نام شما" class="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500">
+                    <div class="flex items-center justify-between text-[11px] mb-1">
+                        <span class="text-zinc-400">پیام روزانه:</span>
+                        <span id="quota-text" class="text-zinc-500 font-bold">نیاز به ورود</span>
+                    </div>
+                    <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                        <div id="quota-bar" class="bg-zinc-600 h-full transition-all duration-300" style="width: 0%;"></div>
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-zinc-400 mb-1">نام کاربری (ID)</label>
-                    <input type="text" id="reg-username" placeholder="houshyar_user" class="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500">
-                </div>
-                <button onclick="completeRegistration()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-2xl transition text-sm shadow-md">
-                    ورود به برنامه هوشیار
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- بدنه اصلی برنامه -->
-    <div id="messenger-app" class="flex-1 flex h-full overflow-hidden" style="display: none;">
-        
-        <!-- سایدبار گفتگوها، مخاطبین و هوش مصنوعی -->
-        <aside class="w-80 bg-zinc-900 border-l border-zinc-800 flex flex-col justify-between shrink-0">
-            <div>
-                <!-- هدر کاربر -->
-                <div class="p-3 border-b border-zinc-800 flex items-center justify-between">
-                    <div class="flex items-center gap-2.5 cursor-pointer" onclick="openProfileSettings()">
-                        <div id="sidebar-avatar" class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white overflow-hidden text-sm">هـ</div>
-                        <div>
-                            <div id="sidebar-name" class="text-sm font-bold text-zinc-100">کاربر هوشیار</div>
-                            <div class="text-[11px] text-zinc-400">آنلاین</div>
-                        </div>
+                    <div class="flex items-center justify-between text-[11px] mb-1">
+                        <span class="text-zinc-400">تصویر و ویدیو روزانه:</span>
+                        <span id="img-quota-text" class="text-zinc-500 font-bold">0 / 5</span>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <button onclick="requestContactsPermission()" class="text-zinc-400 hover:text-indigo-400 p-2 rounded-xl" title="دسترسی به مخاطبین"><i class="fa-solid fa-address-book text-sm"></i></button>
-                        <button onclick="openNewGroupModal()" class="text-zinc-400 hover:text-indigo-400 p-2 rounded-xl" title="ساخت گروه یا کانال"><i class="fa-solid fa-pen-to-square text-sm"></i></button>
+                    <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                        <div id="img-quota-bar" class="bg-purple-500 h-full transition-all duration-300" style="width: 0%;"></div>
                     </div>
                 </div>
-
-                <!-- بخش جستجو -->
-                <div class="p-3 border-b border-zinc-800">
-                    <div class="relative flex items-center">
-                        <i class="fa-solid fa-magnifying-glass absolute right-3 text-zinc-500 text-xs"></i>
-                        <input type="text" id="search-box" oninput="filterChats(this.value)" placeholder="جستجو در گفتگوها و مخاطبین..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl pr-9 pl-3 py-2 text-xs text-zinc-100 focus:outline-none focus:border-indigo-500 placeholder-zinc-500">
-                    </div>
+                
+                <div class="grid grid-cols-2 gap-1.5 pt-1">
+                    <button onclick="openPlansModal()" class="w-full bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 text-zinc-950 font-bold text-xs py-2 rounded-xl transition shadow flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-gem"></i> ارتقای اشتراک
+                    </button>
+                    <button onclick="openTicketModal()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-indigo-400 font-bold text-xs py-2 rounded-xl transition border border-zinc-700 flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-headset"></i> پشتیبانی
+                    </button>
                 </div>
 
-                <!-- لینک‌های هوشیار آپارات و یوتیوب -->
-                <div class="p-2 grid grid-cols-2 gap-1.5 border-b border-zinc-800">
-                    <a href="https://www.aparat.com" target="_blank" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-[11px] py-1 rounded-lg transition flex items-center justify-center gap-1 font-medium">
+                <!-- دسترسی به هوشیار آپارات و یوتیوب -->
+                <div class="grid grid-cols-2 gap-1.5 pt-1">
+                    <a href="https://www.aparat.com" target="_blank" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs py-1.5 rounded-lg transition flex items-center justify-center gap-1 font-medium">
                         <i class="fa-solid fa-video"></i> هوشیار آپارات
                     </a>
-                    <a href="https://www.youtube.com" target="_blank" class="bg-red-700/20 hover:bg-red-700/30 text-red-300 border border-red-600/30 text-[11px] py-1 rounded-lg transition flex items-center justify-center gap-1 font-medium">
+                    <a href="https://www.youtube.com" target="_blank" class="bg-red-700/20 hover:bg-red-700/30 text-red-300 border border-red-600/30 text-xs py-1.5 rounded-lg transition flex items-center justify-center gap-1 font-medium">
                         <i class="fa-brands fa-youtube"></i> هوشیار یوتیوب
                     </a>
                 </div>
             </div>
 
-            <!-- لیست چت‌ها -->
-            <div id="chats-list" class="flex-1 overflow-y-auto p-2 space-y-1">
-                <!-- چت پیش‌فرض هوش مصنوعی -->
-                <div onclick="selectChat('ai_bot', 'هوش مصنوعی هوشیار', 'assistant')" class="p-2.5 bg-zinc-800/60 hover:bg-zinc-800 rounded-2xl cursor-pointer flex items-center gap-3 transition">
-                    <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-white shrink-0">
-                        <i class="fa-solid fa-robot"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-bold text-zinc-200 truncate">هوش مصنوعی هوشیار</span>
-                            <span class="text-[10px] text-zinc-500">ربات</span>
-                        </div>
-                        <div class="text-xs text-indigo-400 truncate mt-0.5">چت متنی و ساخت تصویر با AI</div>
-                    </div>
+            <!-- گفتگوهای اخیر -->
+            <div class="px-4 py-2 flex items-center justify-between text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                <span>گفتگوهای اخیر</span>
+                <button onclick="clearAllChatHistory()" class="text-zinc-500 hover:text-red-400 transition flex items-center gap-1 normal-case text-xs" title="پاک کردن تمام گفتگوها">
+                    <i class="fa-regular fa-trash-can"></i> پاکسازی همه
+                </button>
+            </div>
+            
+            <div id="chat-history-list" class="px-3 space-y-1 overflow-y-auto flex-1">
+                <div class="p-2.5 text-xs text-zinc-500 text-center">هنوز گفتگویی ثبت نشده است.</div>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-zinc-800 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="openProfileModal()" title="مدیریت حساب کاربری">
+                <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-white text-sm" id="user-avatar">هـ</div>
+                <div>
+                    <div class="text-sm font-medium text-zinc-200" id="user-display-name">کاربر مهمان</div>
+                    <div class="text-xs text-zinc-500" id="user-status-text">نیاز به ورود</div>
                 </div>
             </div>
-
-            <div class="p-3 border-t border-zinc-800 flex items-center justify-between text-xs">
-                <button onclick="logoutUser()" class="text-red-400 hover:text-red-300 flex items-center gap-1"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
-                <span class="text-[10px] text-zinc-500">نسخه پیام‌رسان + AI</span>
+            <div class="flex items-center gap-1">
+                <button id="admin-panel-btn" onclick="openAdminModal()" style="display: none;" class="text-amber-400 hover:text-amber-300 p-2" title="پنل مدیریت"><i class="fa-solid fa-user-shield"></i></button>
+                <button id="logout-btn" onclick="logoutUser()" style="display: none;" class="text-red-400 hover:text-red-300 p-2" title="خروج از حساب"><i class="fa-solid fa-right-from-bracket"></i></button>
             </div>
-        </aside>
+        </div>
+    </aside>
 
-        <!-- پنل اصلی چت و هوش مصنوعی -->
-        <main class="flex-1 flex flex-col h-full bg-zinc-950 relative">
-            <header id="chat-header" class="h-14 border-b border-zinc-800 bg-zinc-900/50 backdrop-blur flex items-center justify-between px-4 z-10">
-                <div class="flex items-center gap-3">
-                    <div id="active-chat-avatar" class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white text-xs">AI</div>
-                    <div>
-                        <div id="active-chat-title" class="text-sm font-bold text-zinc-100">هوش مصنوعی هوشیار</div>
-                        <div id="active-chat-status" class="text-[11px] text-emerald-400">آنلاین</div>
-                    </div>
-                </div>
+    <!-- بخش اصلی چت بات -->
+    <main class="flex-1 flex flex-col h-full bg-zinc-950 relative">
+        <header class="h-14 border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur flex items-center justify-between px-4 z-10">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="text-zinc-400 hover:text-zinc-200 p-2"><i class="fa-solid fa-bars text-lg"></i></button>
                 <div class="flex items-center gap-2">
-                    <!-- تغییر حالت متن/تصویر فقط برای هوش مصنوعی -->
-                    <button id="mode-toggle-btn" onclick="toggleMode()" class="bg-zinc-800 hover:bg-zinc-700 text-xs px-3 py-1.5 rounded-xl flex items-center gap-1">
-                        <i class="fa-solid fa-message text-indigo-400" id="mode-icon"></i> <span id="mode-text">حالت: متنی</span>
-                    </button>
+                    <span class="font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 text-lg">هوشیار</span>
+                    <span class="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-md border border-zinc-700">متن | تصویر | ویدیو ساز AI</span>
                 </div>
-            </header>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="openAuthModal()" id="auth-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition shadow-md flex items-center gap-1.5">
+                    <i class="fa-solid fa-user"></i> ورود / ثبت‌نام
+                </button>
+                <button onclick="clearChat()" title="پاکسازی صفحه جاری" class="text-zinc-400 hover:text-red-400 text-sm px-3 py-1.5 rounded-lg transition"><i class="fa-regular fa-trash-can"></i></button>
+            </div>
+        </header>
 
-            <!-- کانتینر پیام‌ها -->
-            <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4">
-                <div class="flex items-start gap-3 max-w-xl">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-bold text-white shrink-0">هـ</div>
-                    <div class="bg-zinc-900 border border-zinc-800 text-zinc-200 px-4 py-3 rounded-2xl rounded-tr-sm text-sm leading-relaxed">
-                        سلام! من هوشیار هستم. هم می‌توانید با مخاطبین و گروه‌ها پیام رد و بدل کنید و هم هر سوالی دارید یا هر تصویری می‌خواهید از من بپرسید!
+        <div id="chat-container" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+            <div id="welcome-screen" class="h-full flex flex-col items-center justify-center text-center max-w-xl mx-auto space-y-4">
+                <div class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 text-2xl text-white">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold text-zinc-100">سلام! من هوشیار هستم، چطور می‌توانم کمکتان کنم؟</h1>
+                <p class="text-sm text-zinc-400">می‌توانید چت متنی، چت صوتی، ساخت تصویر یا ساخت ویدیو انجام دهید.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full pt-4 text-right">
+                    <div onclick="sendPreset('یک شعر کوتاه درباره هوش مصنوعی بگو')" class="p-3.5 bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 rounded-xl cursor-pointer transition text-sm text-zinc-300">
+                        ✨ یک شعر کوتاه درباره هوش مصنوعی بگو
+                    </div>
+                    <div onclick="sendPreset('ساخت ویدیو از طبیعت و ساحل دریا')" class="p-3.5 bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 rounded-xl cursor-pointer transition text-sm text-zinc-300">
+                        🎬 ساخت ویدیو از طبیعت و ساحل دریا
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- ورودی پیام -->
-            <div class="p-3 bg-zinc-900/80 border-t border-zinc-800">
-                <div class="max-w-4xl mx-auto flex items-center gap-2 bg-zinc-950 border border-zinc-800 rounded-2xl px-3 py-2">
-                    <textarea id="msg-input" rows="1" placeholder="پیام یا توصیف تصویر..." class="flex-1 bg-transparent text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none resize-none max-h-24" onkeydown="handleChatKeyPress(event)"></textarea>
-                    <button id="mic-btn" onclick="toggleVoiceInput()" class="text-zinc-400 hover:text-zinc-200 p-2" title="ورودی صوتی"><i class="fa-solid fa-microphone text-sm" id="mic-icon"></i></button>
-                    <button onclick="sendMessage()" class="bg-indigo-600 hover:bg-indigo-500 text-white w-9 h-9 rounded-xl flex items-center justify-center transition shadow">
+        <!-- باکس ورودی پیام -->
+        <div class="p-4 bg-zinc-950 border-t border-zinc-800/80">
+            <div class="max-w-3xl mx-auto relative bg-zinc-900 border border-zinc-800 rounded-2xl shadow-lg focus-within:border-indigo-500/50 transition flex items-center px-3 py-2">
+                <!-- دکمه سه‌حالته: متن / تصویر / ویدیو -->
+                <button id="mode-toggle-btn" onclick="toggleMode()" class="text-zinc-400 hover:text-purple-400 px-2.5 py-1.5 rounded-xl transition text-xs flex items-center gap-1 border border-zinc-800 bg-zinc-950 shrink-0" title="تغییر حالت بین متن، تصویر و ویدیو">
+                    <i class="fa-solid fa-message text-indigo-400" id="mode-icon"></i>
+                    <span id="mode-text">متن</span>
+                </button>
+
+                <textarea id="user-input" rows="1" placeholder="پیام یا توصیف تصویر/ویدیو خود را بنویسید..." class="flex-1 bg-transparent text-zinc-100 placeholder-zinc-500 text-sm p-3 focus:outline-none resize-none max-h-32" onkeydown="handleKeyPress(event)"></textarea>
+
+                <div class="flex items-center gap-2">
+                    <button id="mic-btn" onclick="toggleVoiceInput()" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 w-9 h-9 rounded-xl flex items-center justify-center transition" title="ورودی صوتی">
+                        <i class="fa-solid fa-microphone text-sm" id="mic-icon"></i>
+                    </button>
+                    <button onclick="handleSendAction()" id="send-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white w-9 h-9 rounded-xl flex items-center justify-center transition shadow-md">
                         <i class="fa-solid fa-arrow-up text-sm"></i>
                     </button>
                 </div>
             </div>
-        </main>
-    </div>
+            <div class="text-center text-xs text-zinc-500 mt-2">
+                جهت استفاده از سهمیه‌ها ابتدا وارد حساب کاربری خود شوید.
+            </div>
+        </div>
+    </main>
 
-    <!-- مدال ساخت گروه یا کانال -->
-    <div id="group-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
+    <!-- پنجره مدیریت حساب کاربری -->
+    <div id="profile-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative space-y-5">
             <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
                 <h3 class="text-lg font-bold text-indigo-400 flex items-center gap-2">
-                    <i class="fa-solid fa-users"></i> ساخت گروه یا کانال جدید
+                    <i class="fa-solid fa-user-gear"></i> مدیریت حساب کاربری
                 </h3>
-                <button onclick="closeGroupModal()" class="text-zinc-400 hover:text-zinc-100"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <button onclick="closeProfileModal()" class="text-zinc-400 hover:text-zinc-100"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <div class="space-y-4">
+            <form onsubmit="handleProfileUpdate(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-zinc-400 mb-1">نوع ساخت</label>
-                    <select id="group-type" class="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none">
-                        <option value="group">گروه (Group)</option>
-                        <option value="channel">کانال (Channel)</option>
-                    </select>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">تغییر نام کاربری</label>
+                    <input type="text" id="profile-username" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500">
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-zinc-400 mb-1">نام گروه / کانال</label>
-                    <input type="text" id="group-name-input" placeholder="مثلاً: دوستان هوشیار" class="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none">
+                <div class="border-t border-zinc-800 pt-3 space-y-3">
+                    <h4 class="text-xs font-bold text-amber-400">تغییر رمز عبور</h4>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-1">رمز عبور فعلی</label>
+                        <input type="password" id="profile-curr-pass" placeholder="••••••••" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-1">رمز عبور جدید</label>
+                        <input type="password" id="profile-new-pass" placeholder="••••••••" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-1">تکرار رمز عبور جدید</label>
+                        <input type="password" id="profile-confirm-pass" placeholder="••••••••" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500">
+                    </div>
                 </div>
-                <button onclick="createGroupOrChannel()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-2xl transition text-sm shadow-md">
-                    ایجاد کن
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl text-xs transition">
+                    ذخیره تغییرات حساب کاربری
                 </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- پنجره پشتیبانی -->
+    <div id="ticket-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl relative space-y-5 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+                <h3 class="text-lg font-bold text-indigo-400 flex items-center gap-2">
+                    <i class="fa-solid fa-headset text-indigo-400"></i> پشتیبانی و تیکت‌های شما
+                </h3>
+                <button onclick="closeTicketModal()" class="text-zinc-400 hover:text-zinc-100"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form onsubmit="handleTicketSubmit(event)" class="space-y-4 bg-zinc-950 p-4 rounded-xl border border-zinc-800">
+                <h4 class="text-xs font-bold text-zinc-300 uppercase tracking-wider">ارسال تیکت جدید</h4>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">موضوع تیکت</label>
+                    <input type="text" id="ticket-subject" required placeholder="مثلاً: مشکل در فعال‌سازی اشتراک" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">متن پیام یا مشکل</label>
+                    <textarea id="ticket-message" rows="3" required placeholder="شرح کامل درخواست..." class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-xl text-xs transition">
+                    ارسال تیکت به پشتیبانی
+                </button>
+            </form>
+            <div class="space-y-3">
+                <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">تاریخچه تیکت‌های شما</h4>
+                <div id="user-tickets-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- پنجره خرید اشتراک با بازه‌های زمانی ۳ ماهه، ۶ ماهه و یکساله با تخفیف ۲۵ هزار تومانی -->
+    <div id="plans-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-4xl w-full p-6 shadow-2xl relative space-y-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+                <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+                    <i class="fa-solid fa-crown text-amber-400"></i> خرید اشتراک ویژه هوشیار
+                </h3>
+                <button onclick="closePlansModal()" class="text-zinc-400 hover:text-zinc-100"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <!-- انتخاب دوره زمانی -->
+            <div class="flex items-center justify-center gap-2 bg-zinc-950 p-1.5 rounded-2xl border border-zinc-800 max-w-md mx-auto">
+                <button onclick="changeDuration('1')" id="dur-1" class="flex-1 py-1.5 rounded-xl text-xs font-bold transition bg-indigo-600 text-white">۱ ماهه</button>
+                <button onclick="changeDuration('3')" id="dur-3" class="flex-1 py-1.5 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-white">۳ ماهه (تخفیف دار)</button>
+                <button onclick="changeDuration('6')" id="dur-6" class="flex-1 py-1.5 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-white">۶ ماهه (تخفیف دار)</button>
+                <button onclick="changeDuration('12')" id="dur-12" class="flex-1 py-1.5 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-white">یک‌ساله (ویژه)</button>
+            </div>
+
+            <!-- کارت‌های اشتراک -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="plans-container">
+                <!-- بر اساس دورهزمانی انتخاب شده به صورت پویا پر می‌شود -->
+            </div>
+
+            <div id="payment-box" style="display: none;" class="bg-zinc-950 border border-zinc-800 p-5 rounded-xl space-y-4">
+                <h4 class="text-sm font-bold text-amber-400 border-b border-zinc-800 pb-2">
+                    پرداخت جهت اشتراک: <span id="selected-plan-name" class="text-white"></span> (<span id="selected-plan-price" class="text-zinc-300"></span> تومان)
+                </h4>
+                <div class="bg-zinc-900 p-4 rounded-xl space-y-2 border border-zinc-800">
+                    <div class="text-xs text-zinc-400">شماره کارت: <span class="font-mono font-bold text-amber-300">6219 8619 5040 0118</span> (پرهام خان احمدی)</div>
+                </div>
+                <form onsubmit="handleReceiptSubmit(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-1">نام کارت‌به‌کارت‌کننده</label>
+                        <input type="text" id="payer-name" required placeholder="نام و نام خانوادگی" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-100 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-1">آپلود فاکتور رسید تراکنش</label>
+                        <input type="file" id="receipt-file" accept="image/*" required class="w-full text-xs text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-zinc-800 file:text-zinc-200 cursor-pointer">
+                    </div>
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition">
+                        ارسال فاکتور جهت بررسی و فعال‌سازی
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- پنجره ورود و ثبت نام -->
+    <div id="auth-modal" style="display: none;" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative space-y-5">
+            <div class="flex items-center justify-between">
+                <div class="flex gap-4 border-b border-zinc-800 w-full pb-2">
+                    <button id="tab-login-btn" onclick="switchTab('login')" class="text-sm font-bold text-indigo-400 border-b-2 border-indigo-500 pb-1">ورود به حساب</button>
+                    <button id="tab-register-btn" onclick="switchTab('register')" class="text-sm font-bold text-zinc-400 hover:text-zinc-200 pb-1">ایجاد حساب جدید</button>
+                </div>
+                <button onclick="closeAuthModal()" class="text-zinc-400 hover:text-zinc-100 mr-2"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">نام کاربری</label>
+                    <input type="text" id="login-username" required placeholder="نام کاربری" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">رمز عبور</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none">
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl transition text-sm shadow-md">
+                    ورود به حساب
+                </button>
+            </form>
+
+            <form id="register-form" onsubmit="handleRegister(event)" class="space-y-4" style="display: none;">
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">نام کاربری</label>
+                    <input type="text" id="reg-username" required placeholder="نام کاربری جدید" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">رمز عبور</label>
+                    <input type="password" id="reg-password" required placeholder="رمز عبور" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">تکرار رمز عبور</label>
+                    <input type="password" id="reg-confirm-password" required placeholder="تکرار رمز عبور" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none">
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl transition text-sm shadow-md">
+                    ثبت‌نام و ایجاد حساب
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- پنل مدیریت -->
+    <div id="admin-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-amber-500/30 rounded-2xl max-w-3xl w-full p-6 shadow-2xl relative space-y-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+                <h3 id="admin-modal-title" class="text-lg font-bold text-amber-400 flex items-center gap-2">
+                    <i class="fa-solid fa-crown text-amber-400"></i> پنل مدیریت هوشیار
+                </h3>
+                <button onclick="closeAdminModal()" class="text-zinc-400 hover:text-zinc-100"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3">
+                <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider">فاکتورها و درخواست‌های واریزی در انتظار تأیید</h4>
+                <div id="admin-receipts-list" class="space-y-2"></div>
+            </div>
+            <div class="space-y-3">
+                <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-wider">مدیریت تیکت‌های پشتیبانی</h4>
+                <div id="admin-tickets-list" class="space-y-2 max-h-50 overflow-y-auto pr-1"></div>
+            </div>
+            <div id="admin-announcement-box" class="bg-zinc-950 border border-zinc-800 p-4 rounded-xl space-y-2">
+                <label class="block text-xs font-bold text-amber-400">ارسال اطلاعیه عمومی مدیر</label>
+                <div class="flex gap-2">
+                    <input type="text" id="admin-announcement" placeholder="متن پیام مدیر..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-zinc-100 focus:outline-none">
+                    <button onclick="sendAdminAnnouncement()" class="bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold px-4 py-2 rounded-xl text-xs transition">ارسال</button>
+                </div>
+            </div>
+            <div class="flex justify-between border-t border-zinc-800 pt-4">
+                <button onclick="logoutUser()" class="bg-red-600/20 text-red-400 px-4 py-2 rounded-xl text-xs font-medium">خروج از حساب</button>
+                <button onclick="closeAdminModal()" class="bg-zinc-800 text-zinc-300 px-4 py-2 rounded-xl text-xs">بستن</button>
             </div>
         </div>
     </div>
 
     <script>
+        let usersDB = [];
         let currentUser = null;
-        let activeChatId = 'ai_bot';
-        let isImageMode = false;
-        let isRecording = false;
+        let currentChatId = null;
+        let chatsDB = [];
+        let receiptsDB = [];
+        let ticketsDB = [];
+        let inputMode = 'text'; // 'text' | 'image' | 'video'
+        let selectedDuration = '1'; // '1', '3', '6', '12'
+        let selectedPlan = null;
         let recognition = null;
-        let chatsData = {
-            'ai_bot': { name: 'هوش مصنوعی هوشیار', type: 'assistant', avatar: '🤖', messages: [] }
+        let isRecording = false;
+
+        const basePrices = {
+            'پریمیوم': 25000,
+            'پرو': 50000,
+            'پرو پریمیوم': 75000,
+            'پرو مکس': 100000
         };
-        let profileBase64 = '';
+
+        const baseLimits = {
+            'پریمیوم': { msg: 50, img: 5 },
+            'پرو': { msg: 100, img: 10 },
+            'پرو پریمیوم': { msg: 150, img: 15 },
+            'پرو مکس': { msg: 200, img: 20 }
+        };
 
         try {
-            currentUser = JSON.parse(localStorage.getItem('houshyar_combined_user')) || null;
-            const savedChats = JSON.parse(localStorage.getItem('houshyar_combined_chats'));
-            if (savedChats) chatsData = savedChats;
-        } catch(e) {}
+            usersDB = JSON.parse(localStorage.getItem('houshyar_users')) || [];
+            currentUser = JSON.parse(localStorage.getItem('houshyar_current_user')) || null;
+            receiptsDB = JSON.parse(localStorage.getItem('houshyar_receipts')) || [];
+            ticketsDB = JSON.parse(localStorage.getItem('houshyar_tickets')) || [];
+        } catch (e) {}
 
         document.addEventListener('DOMContentLoaded', () => {
             if (currentUser) {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('messenger-app').style.display = 'flex';
-                updateUserUI();
-                renderChatsList();
+                updateUIForUser(currentUser.username, currentUser.isAdmin, currentUser.isVice);
+                loadUserChats();
             }
+            updateQuotaUI();
+            newChat();
             initSpeechRecognition();
+            renderPlans();
         });
+
+        function changeDuration(dur) {
+            selectedDuration = dur;
+            ['1', '3', '6', '12'].forEach(d => {
+                const btn = document.getElementById(`dur-${d}`);
+                if (d === dur) {
+                    btn.className = "flex-1 py-1.5 rounded-xl text-xs font-bold transition bg-indigo-600 text-white";
+                } else {
+                    btn.className = "flex-1 py-1.5 rounded-xl text-xs font-bold transition text-zinc-400 hover:text-white";
+                }
+            });
+            renderPlans();
+        }
+
+        function renderPlans() {
+            const container = document.getElementById('plans-container');
+            const months = parseInt(selectedDuration);
+
+            const plans = [
+                { name: 'پریمیوم', color: 'indigo', msg: 50, img: 5 },
+                { name: 'پرو', color: 'purple', msg: 100, img: 10 },
+                { name: 'پرو پریمیوم', color: 'amber', msg: 150, img: 15 },
+                { name: 'پرو مکس', color: 'amber-special', msg: 200, img: 20 }
+            ];
+
+            container.innerHTML = plans.map(p => {
+                let rawPrice = basePrices[p.name] * months;
+                let finalPrice = rawPrice;
+                let discountText = '';
+
+                if (months > 1) {
+                    finalPrice = Math.max(0, rawPrice - 25000);
+                    discountText = `<div class="text-[10px] text-green-400 mt-1 font-bold">🎉 ۲۵,۰۰۰ تومان تخفیف اعمال شد!</div>`;
+                }
+
+                const priceFormatted = finalPrice.toLocaleString('fa-IR');
+
+                return `
+                <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-4 flex flex-col justify-between shadow-md hover:border-indigo-500 transition">
+                    <div>
+                        <div class="text-xs text-zinc-400 font-bold mb-1">${months} ماهه</div>
+                        <h4 class="font-bold text-indigo-400 text-base">${p.name}</h4>
+                        <div class="text-lg font-bold my-2 text-zinc-100">${priceFormatted} <span class="text-xs text-zinc-400">تومان</span></div>
+                        ${discountText}
+                        <ul class="text-xs text-zinc-300 space-y-2 my-4 border-t border-zinc-800/80 pt-3">
+                            <li><i class="fa-solid fa-check text-green-400 ml-1"></i> روزانه ${p.msg} پیام متنی</li>
+                            <li><i class="fa-solid fa-check text-green-400 ml-1"></i> روزانه ${p.img} تصویر/ویدیو AI</li>
+                        </ul>
+                    </div>
+                    <button onclick="selectPlan('${p.name} (${months} ماهه)', '${priceFormatted}')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-lg text-xs transition">انتخاب و پرداخت</button>
+                </div>`;
+            }).join('');
+        }
 
         function initSpeechRecognition() {
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 recognition = new SpeechRecognition();
                 recognition.lang = 'fa-IR';
-                recognition.onresult = (e) => {
-                    document.getElementById('msg-input').value = e.results[0][0].transcript;
+                recognition.onresult = (event) => {
+                    document.getElementById('user-input').value = event.results[0][0].transcript;
                     stopRecordingUI();
                 };
+                recognition.onerror = () => stopRecordingUI();
                 recognition.onend = () => stopRecordingUI();
             }
         }
 
         function toggleVoiceInput() {
-            if (!recognition) { alert('مرورگر شما از ورودی صوتی پشتیبانی نمی‌کند.'); return; }
-            if (isRecording) { recognition.stop(); stopRecordingUI(); }
-            else {
+            if (!recognition) { alert('مرورگر شما از تشخیص گفتار پشتیبانی نمی‌کند.'); return; }
+            if (isRecording) {
+                recognition.stop();
+                stopRecordingUI();
+            } else {
                 try {
                     recognition.start();
                     isRecording = true;
-                    document.getElementById('mic-icon').className = 'fa-solid fa-microphone-slash text-red-500 animate-pulse';
+                    document.getElementById('mic-btn').classList.add('bg-red-600', 'animate-pulse');
                 } catch(e) {}
             }
         }
 
         function stopRecordingUI() {
             isRecording = false;
-            document.getElementById('mic-icon').className = 'fa-solid fa-microphone text-sm';
-        }
-
-        function sendVerificationCode() {
-            const phone = document.getElementById('phone-input').value.trim();
-            if (!phone || phone.length < 10) { alert('شماره تلفن معتبر نیست.'); return; }
-            document.getElementById('step-phone').style.display = 'none';
-            document.getElementById('step-code').style.display = 'block';
-        }
-
-        function verifyCode() {
-            const code = document.getElementById('code-input').value.trim();
-            if (code !== '1234') { alert('کد تایید اشتباه است (1234 را وارد کنید)'); return; }
-            document.getElementById('step-code').style.display = 'none';
-            document.getElementById('step-profile').style.display = 'block';
-        }
-
-        function previewProfileImage(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    profileBase64 = e.target.result;
-                    const preview = document.getElementById('profile-preview');
-                    preview.src = profileBase64;
-                    preview.style.display = 'block';
-                    document.getElementById('profile-placeholder').style.display = 'none';
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function completeRegistration() {
-            const name = document.getElementById('reg-name').value.trim();
-            const username = document.getElementById('reg-username').value.trim();
-            if (!name || !username) { alert('نام و نام کاربری را وارد کنید.'); return; }
-
-            currentUser = { name, username, avatar: profileBase64 || '' };
-            localStorage.setItem('houshyar_combined_user', JSON.stringify(currentUser));
-
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('messenger-app').style.display = 'flex';
-            updateUserUI();
-            renderChatsList();
-        }
-
-        function updateUserUI() {
-            if (!currentUser) return;
-            document.getElementById('sidebar-name').innerText = currentUser.name;
-            const avatarDiv = document.getElementById('sidebar-avatar');
-            if (currentUser.avatar) {
-                avatarDiv.innerHTML = `<img src="${currentUser.avatar}" class="w-full h-full object-cover">`;
-            } else {
-                avatarDiv.innerText = currentUser.name.charAt(0).toUpperCase();
-            }
-        }
-
-        function requestContactsPermission() {
-            if (confirm('آیا اجازه دسترسی به مخاطبین تلفن همراه را می‌دهید؟')) {
-                const sampleContacts = [
-                    { id: 'contact_1', name: 'علی رضایی' },
-                    { id: 'contact_2', name: 'سارا احمدی' }
-                ];
-                sampleContacts.forEach(c => {
-                    if (!chatsData[c.id]) chatsData[c.id] = { name: c.name, type: 'contact', avatar: c.name.charAt(0), messages: [] };
-                });
-                saveChats();
-                renderChatsList();
-                alert('مخاطبین همگام‌سازی شدند.');
-            }
+            const btn = document.getElementById('mic-btn');
+            if (btn) btn.classList.remove('bg-red-600', 'animate-pulse');
         }
 
         function toggleMode() {
-            isImageMode = !isImageMode;
-            document.getElementById('mode-icon').className = isImageMode ? 'fa-solid fa-image text-purple-400' : 'fa-solid fa-message text-indigo-400';
-            document.getElementById('mode-text').innerText = isImageMode ? 'حالت: تولید تصویر' : 'حالت: متنی';
-        }
+            const icon = document.getElementById('mode-icon');
+            const text = document.getElementById('mode-text');
+            const input = document.getElementById('user-input');
 
-        function openNewGroupModal() { document.getElementById('group-modal').style.display = 'flex'; }
-        function closeGroupModal() { document.getElementById('group-modal').style.display = 'none'; }
-
-        function createGroupOrChannel() {
-            const type = document.getElementById('group-type').value;
-            const name = document.getElementById('group-name-input').value.trim();
-            if (!name) return;
-            const chatId = 'chat_' + Date.now();
-            chatsData[chatId] = { name, type, avatar: type === 'group' ? '👥' : '📢', messages: [] };
-            saveChats();
-            renderChatsList();
-            closeGroupModal();
-            selectChat(chatId, name, type);
-        }
-
-        function selectChat(id, name, type) {
-            activeChatId = id;
-            document.getElementById('active-chat-title').innerText = name;
-            document.getElementById('active-chat-status').innerText = type === 'group' ? 'گروه' : (type === 'channel' ? 'کانال' : (id === 'ai_bot' ? 'هوش مصنوعی' : 'آنلاین'));
-            document.getElementById('active-chat-avatar').innerText = name.charAt(0).toUpperCase();
-            document.getElementById('mode-toggle-btn').style.display = (id === 'ai_bot') ? 'flex' : 'none';
-            renderMessages();
-        }
-
-        function filterChats(query) {
-            const list = document.getElementById('chats-list');
-            const q = query.toLowerCase();
-            let html = '';
-            for (let id in chatsData) {
-                let chat = chatsData[id];
-                if (chat.name.toLowerCase().includes(q)) {
-                    html += `
-                        <div onclick="selectChat('${id}', '${chat.name}', '${chat.type}')" class="p-2.5 hover:bg-zinc-800 rounded-2xl cursor-pointer flex items-center gap-3 transition ${activeChatId === id ? 'bg-zinc-800' : ''}">
-                            <div class="w-11 h-11 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white text-sm">${chat.avatar.length > 1 ? chat.avatar : chat.avatar}</div>
-                            <div class="flex-1 min-w-0">
-                                <div class="text-sm font-bold text-zinc-200 truncate">${chat.name}</div>
-                                <div class="text-xs text-zinc-400 truncate">${chat.messages.length ? chat.messages[chat.messages.length - 1].text : 'بدون پیام'}</div>
-                            </div>
-                        </div>`;
-                }
+            if (inputMode === 'text') {
+                inputMode = 'image';
+                icon.className = 'fa-solid fa-image text-purple-400';
+                text.innerText = 'تصویر';
+                input.placeholder = 'توصیف تصویری که می‌خواهید ساخته شود...';
+            } else if (inputMode === 'image') {
+                inputMode = 'video';
+                icon.className = 'fa-solid fa-video text-amber-400';
+                text.innerText = 'ویدیو';
+                input.placeholder = 'توصیف ویدیویی که می‌خواهید ساخته شود (مثلاً: ویدیو طبیعت ساحل)...';
+            } else {
+                inputMode = 'text';
+                icon.className = 'fa-solid fa-message text-indigo-400';
+                text.innerText = 'متن';
+                input.placeholder = 'پیام خود را بنویسید...';
             }
-            list.innerHTML = html;
         }
 
-        function renderChatsList() { filterChats(''); }
-
-        function renderMessages() {
-            const container = document.getElementById('messages-container');
-            const chat = chatsData[activeChatId];
-            if (!chat) return;
-            container.innerHTML = chat.messages.length ? chat.messages.map(m => `
-                <div class="flex items-start gap-3 max-w-xl ${m.sender === 'me' ? 'ml-auto justify-end' : ''}">
-                    <div class="${m.sender === 'me' ? 'bg-indigo-600 text-white rounded-2xl rounded-bl-sm' : 'bg-zinc-900 border border-zinc-800 text-zinc-200 rounded-2xl rounded-br-sm'} px-4 py-3 text-sm space-y-2">
-                        ${m.image ? `<img src="${m.image}" class="rounded-lg max-h-60 w-full object-cover">` : ''}
-                        <div>${escapeHtml(m.text)}</div>
+        function newChat() {
+            currentChatId = 'chat_' + Date.now();
+            document.getElementById('chat-container').innerHTML = `
+                <div id="welcome-screen" class="h-full flex flex-col items-center justify-center text-center max-w-xl mx-auto space-y-4">
+                    <div class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg text-2xl text-white">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
                     </div>
-                </div>`).join('') : '<div class="text-center text-xs text-zinc-500 my-4">هنوز پیامی نیست.</div>';
-            container.scrollTop = container.scrollHeight;
+                    <h1 class="text-2xl md:text-3xl font-bold text-zinc-100">سلام! من هوشیار هستم، چطور می‌توانم کمکتان کنم؟</h1>
+                    <p class="text-sm text-zinc-400">می‌توانید چت متنی، چت صوتی، ساخت تصویر یا ساخت ویدیو انجام دهید.</p>
+                </div>`;
         }
 
-        async function sendMessage() {
-            const input = document.getElementById('msg-input');
+        function clearChat() { newChat(); }
+
+        function handleSendAction() {
+            if (inputMode === 'video') generateVideo();
+            else if (inputMode === 'image') generateImage();
+            else sendMessage();
+        }
+
+        async function generateVideo() {
+            const input = document.getElementById('user-input');
             const text = input.value.trim();
             if (!text) return;
 
-            chatsData[activeChatId].messages.push({ sender: 'me', text });
+            const quota = checkUserQuota('img');
+            if (!quota.allowed) { alert(quota.message); if (!currentUser) openAuthModal(); return; }
+
+            const container = document.getElementById('chat-container');
+            const welcome = document.getElementById('welcome-screen');
+            if (welcome) welcome.remove();
+
+            container.innerHTML += `<div class="flex items-start gap-4 max-w-3xl mx-auto justify-end"><div class="bg-amber-600 text-white px-4 py-3 rounded-2xl text-sm">🎬 درخواست ساخت ویدیو: ${escapeHtml(text)}</div></div>`;
             input.value = '';
-            renderMessages();
-            renderChatsList();
-            saveChats();
+            container.scrollTop = container.scrollHeight;
 
-            // پردازش پاسخ هوش مصنوعی در صورت چت با AI
-            if (activeChatId === 'ai_bot') {
-                if (isImageMode) {
-                    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=768&nologo=true`;
-                    chatsData[activeChatId].messages.push({ sender: 'ai', text: `بفرمایید، این هم تصویر درخواستی شما درباره "${text}":`, image: imageUrl });
-                    renderMessages();
-                    saveChats();
-                } else {
-                    try {
-                        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer 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` },
-                            body: JSON.stringify({ model: "openai/gpt-oss-120b", messages: [{ role: "user", content: text }] })
-                        });
-                        const data = await res.json();
-                        let aiReply = "پاسخ هوشیار به پیام شما آماده است.";
-                        if (data.choices && data.choices[0]) aiReply = data.choices[0].message.content;
-                        chatsData[activeChatId].messages.push({ sender: 'ai', text: aiReply });
-                        renderMessages();
-                        saveChats();
-                    } catch(e) {}
-                }
+            const loadingId = 'loading-' + Date.now();
+            container.innerHTML += `<div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold">هـ</div><div class="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400"><i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال رندر و تولید ویدیوی هوش مصنوعی شما...</div></div>`;
+            container.scrollTop = container.scrollHeight;
+
+            // ویدیو نمونه مرتبط واقعی برای شبیه‌سازی کامل AI Video
+            const sampleVideos = [
+                "https://assets.mixkit.co/videos/preview/mixkit-ocean-waves-looping-1188-large.mp4",
+                "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4",
+                "https://assets.mixkit.co/videos/preview/mixkit-top-aerial-shot-of-seashore-with-waves-1090-large.mp4"
+            ];
+            const videoUrl = sampleVideos[Math.floor(Math.random() * sampleVideos.length)];
+
+            setTimeout(() => {
+                const el = document.getElementById(loadingId);
+                if (el) el.remove();
+
+                incrementQuota('img');
+                const desc = `بفرمایید، این هم ویدیوی ساخته شده بر اساس درخواست شما ("${escapeHtml(text)}"):`;
+                container.innerHTML += `
+                    <div class="flex items-start gap-4 max-w-3xl mx-auto">
+                        <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold">هـ</div>
+                        <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm space-y-3 max-w-[85%]">
+                            <p class="text-zinc-300 font-medium">${desc}</p>
+                            <video src="${videoUrl}" controls autoplay loop class="rounded-xl w-full max-h-[380px] object-cover border border-zinc-800 shadow-lg"></video>
+                        </div>
+                    </div>`;
+                container.scrollTop = container.scrollHeight;
+                saveCurrentChatToStorage(container.innerHTML, 'ویدیو: ' + text);
+            }, 3000);
+        }
+
+        async function generateImage() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if (!text) return;
+            const quota = checkUserQuota('img');
+            if (!quota.allowed) { alert(quota.message); if (!currentUser) openAuthModal(); return; }
+
+            const container = document.getElementById('chat-container');
+            const welcome = document.getElementById('welcome-screen');
+            if (welcome) welcome.remove();
+
+            container.innerHTML += `<div class="flex items-start gap-4 max-w-3xl mx-auto justify-end"><div class="bg-purple-600 text-white px-4 py-3 rounded-2xl text-sm">🎨 ${escapeHtml(text)}</div></div>`;
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
+
+            const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=768&nologo=true`;
+            const img = new Image();
+            img.onload = () => {
+                incrementQuota('img');
+                const desc = `بفرمایید، این هم از تصویر درخواستی شما ("${escapeHtml(text)}"):`;
+                container.innerHTML += `<div class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold">هـ</div><div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm space-y-3"><p class="text-zinc-300">${desc}</p><img src="${imageUrl}" class="rounded-xl w-full max-h-[400px] object-cover" /></div></div>`;
+                container.scrollTop = container.scrollHeight;
+                saveCurrentChatToStorage(container.innerHTML, 'تصویر: ' + text);
+            };
+            img.src = imageUrl;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if (!text) return;
+            const quota = checkUserQuota('msg');
+            if (!quota.allowed) { alert(quota.message); if (!currentUser) openAuthModal(); return; }
+
+            const container = document.getElementById('chat-container');
+            const welcome = document.getElementById('welcome-screen');
+            if (welcome) welcome.remove();
+
+            container.innerHTML += `<div class="flex items-start gap-4 max-w-3xl mx-auto justify-end"><div class="bg-indigo-600 text-white px-4 py-3 rounded-2xl text-sm">${escapeHtml(text)}</div></div>`;
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
+
+            let aiReply = "پاسخ هوشیار به درخواست شما آماده است.";
+            try {
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer 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` },
+                    body: JSON.stringify({ model: "openai/gpt-oss-120b", messages: [{ role: "user", content: text }] })
+                });
+                const data = await res.json();
+                if (data.choices && data.choices[0]) aiReply = data.choices[0].message.content;
+            } catch(e) {}
+
+            incrementQuota('msg');
+            const descriptivePrefix = `بفرمایید، این هم پاسخ متن شما درباره "${escapeHtml(text)}":\n\n`;
+            container.innerHTML += `<div class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold">هـ</div><div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm text-zinc-200 whitespace-pre-line">${descriptivePrefix}${escapeHtml(aiReply)}</div></div>`;
+            container.scrollTop = container.scrollHeight;
+            saveCurrentChatToStorage(container.innerHTML, text);
+        }
+
+        function loadUserChats() {
+            if (!currentUser) return;
+            try { chatsDB = JSON.parse(localStorage.getItem(`houshyar_chats_${currentUser.username}`)) || []; } catch(e) { chatsDB = []; }
+            renderChatHistoryList();
+        }
+
+        function saveCurrentChatToStorage(messagesHtml, title) {
+            if (!currentUser) return;
+            if (!currentChatId) currentChatId = 'chat_' + Date.now();
+            let existingIndex = chatsDB.findIndex(c => c.id === currentChatId);
+            const chatObj = { id: currentChatId, title: title.length > 25 ? title.substring(0, 25) + '...' : title, html: messagesHtml, updatedAt: Date.now() };
+            if (existingIndex >= 0) chatsDB[existingIndex] = chatObj;
+            else chatsDB.unshift(chatObj);
+            try { localStorage.setItem(`houshyar_chats_${currentUser.username}`, JSON.stringify(chatsDB)); } catch(e) {}
+            renderChatHistoryList();
+        }
+
+        function renderChatHistoryList() {
+            const list = document.getElementById('chat-history-list');
+            if (!chatsDB || chatsDB.length === 0) {
+                list.innerHTML = `<div class="p-2.5 text-xs text-zinc-500 text-center">هنوز گفتگویی ثبت نشده است.</div>`;
+                return;
+            }
+            list.innerHTML = chatsDB.map(c => `
+                <div class="p-2 text-sm text-zinc-300 bg-zinc-800/60 hover:bg-zinc-800 rounded-lg flex items-center justify-between group transition">
+                    <div onclick="loadChat('${c.id}')" class="cursor-pointer truncate flex items-center gap-2 flex-1">
+                        <i class="fa-regular fa-message text-zinc-400 text-xs"></i> <span>${escapeHtml(c.title)}</span>
+                    </div>
+                    <button onclick="deleteSingleChat(event, '${c.id}')" class="text-zinc-500 hover:text-red-400 p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function loadChat(chatId) {
+            const chat = chatsDB.find(c => c.id === chatId);
+            if (!chat) return;
+            currentChatId = chatId;
+            document.getElementById('chat-container').innerHTML = chat.html;
+            const container = document.getElementById('chat-container');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function deleteSingleChat(event, chatId) {
+            event.stopPropagation();
+            if (confirm('حذف گفتگو؟')) {
+                chatsDB = chatsDB.filter(c => c.id !== chatId);
+                try { localStorage.setItem(`houshyar_chats_${currentUser.username}`, JSON.stringify(chatsDB)); } catch(e) {}
+                renderChatHistoryList();
+                if (currentChatId === chatId) newChat();
             }
         }
 
-        function handleChatKeyPress(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
-        function saveChats() { localStorage.setItem('houshyar_combined_chats', JSON.stringify(chatsData)); }
+        function clearAllChatHistory() {
+            if (!currentUser) return;
+            if (confirm('پاک کردن تمام گفتگوها؟')) {
+                chatsDB = [];
+                try { localStorage.removeItem(`houshyar_chats_${currentUser.username}`); } catch(e) {}
+                renderChatHistoryList();
+                newChat();
+            }
+        }
+
+        function getUserQuotaData() {
+            const userId = currentUser ? currentUser.username : 'guest';
+            const quotaKey = `houshyar_quota_${userId}`;
+            let data = null;
+            try { data = JSON.parse(localStorage.getItem(quotaKey)); } catch(e) {}
+            const now = Date.now();
+            if (!data || (now - data.startTime) > 24*60*60*1000) {
+                data = { count: 0, imgCount: 0, startTime: now };
+                try { localStorage.setItem(quotaKey, JSON.stringify(data)); } catch(e) {}
+            }
+            return { data, quotaKey };
+        }
+
+        function getMaxQuotas() {
+            if (!currentUser) return { msg: 0, img: 0 };
+            if (currentUser.isAdmin) return { msg: 9999, img: 9999 };
+            if (currentUser.isVice) return { msg: 500, img: 50 };
+            const tier = currentUser.tier || 'free';
+            if (tier.includes('پریمیوم')) return { msg: 50, img: 5 };
+            if (tier.includes('پرو مکس')) return { msg: 200, img: 20 };
+            if (tier.includes('پرو')) return { msg: 100, img: 10 };
+            return { msg: DEFAULT_MSG_QUOTA, img: DEFAULT_IMG_QUOTA };
+        }
+
+        function checkUserQuota(type = 'msg') {
+            if (!currentUser) return { allowed: false, message: 'ابتدا وارد حساب کاربری خود شوید.' };
+            if (currentUser.isAdmin) return { allowed: true };
+            const limits = getMaxQuotas();
+            const { data } = getUserQuotaData();
+            if (type === 'msg' && data.count >= limits.msg) return { allowed: false, message: 'سهمیه پیام متنی تمام شده است.' };
+            if (type === 'img' && data.imgCount >= limits.img) return { allowed: false, message: 'سهمیه تصویر/ویدیو تمام شده است.' };
+            return { allowed: true };
+        }
+
+        function incrementQuota(type = 'msg') {
+            if (!currentUser || currentUser.isAdmin) return;
+            const { data, quotaKey } = getUserQuotaData();
+            if (type === 'msg') data.count++;
+            if (type === 'img') data.imgCount++;
+            try { localStorage.setItem(quotaKey, JSON.stringify(data)); } catch(e) {}
+            updateQuotaUI();
+        }
+
+        function updateQuotaUI() {
+            const quotaText = document.getElementById('quota-text');
+            const quotaBar = document.getElementById('quota-bar');
+            const imgQuotaText = document.getElementById('img-quota-text');
+            const imgQuotaBar = document.getElementById('img-quota-bar');
+            const tierBadge = document.getElementById('sub-tier-badge');
+            if (!currentUser) {
+                quotaText.innerText = "نیاز به ورود";
+                quotaBar.style.width = "0%";
+                imgQuotaText.innerText = "0 / 0";
+                imgQuotaBar.style.width = "0%";
+                tierBadge.innerText = "رایگان";
+                return;
+            }
+            tierBadge.innerText = currentUser.isAdmin ? "مدیر کل" : (currentUser.isVice ? "معاونت" : (currentUser.tier || "رایگان"));
+            if (currentUser.isAdmin) {
+                quotaText.innerText = "نامحدود"; quotaBar.style.width = "100%";
+                imgQuotaText.innerText = "نامحدود"; imgQuotaBar.style.width = "100%";
+                return;
+            }
+            const limits = getMaxQuotas();
+            const { data } = getUserQuotaData();
+            const remMsg = Math.max(0, limits.msg - data.count);
+            quotaText.innerText = `${remMsg} / ${limits.msg}`;
+            quotaBar.style.width = `${(remMsg / limits.msg)*100}%`;
+            const remImg = Math.max(0, limits.img - (data.imgCount || 0));
+            imgQuotaText.innerText = `${remImg} / ${limits.img}`;
+            imgQuotaBar.style.width = limits.img > 0 ? `${(remImg / limits.img)*100}%` : "0%";
+        }
+
+        function openPlansModal() {
+            if (!currentUser) { alert('لطفاً وارد شوید.'); openAuthModal(); return; }
+            document.getElementById('payment-box').style.display = 'none';
+            document.getElementById('plans-modal').style.display = 'flex';
+        }
+        function closePlansModal() { document.getElementById('plans-modal').style.display = 'none'; }
+
+        function selectPlan(name, price) {
+            selectedPlan = { name, price };
+            document.getElementById('selected-plan-name').innerText = name;
+            document.getElementById('selected-plan-price').innerText = price;
+            document.getElementById('payment-box').style.display = 'block';
+        }
+
+        function handleReceiptSubmit(e) {
+            e.preventDefault();
+            const payerName = document.getElementById('payer-name').value.trim();
+            const fileInput = document.getElementById('receipt-file');
+            if (!fileInput.files.length) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                receiptsDB.push({
+                    id: 'rec_' + Date.now(), username: currentUser.username, payerName, planName: selectedPlan.name, planPrice: selectedPlan.price, image: evt.target.result, status: 'pending'
+                });
+                try { localStorage.setItem('houshyar_receipts', JSON.stringify(receiptsDB)); } catch(e) {}
+                alert('فاکتور ارسال شد.');
+                closePlansModal();
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        }
+
+        function sendPreset(text) {
+            if (!currentUser) { alert('وارد شوید.'); openAuthModal(); return; }
+            document.getElementById('user-input').value = text;
+            if (text.includes('ویدیو')) { inputMode = 'video'; toggleMode(); toggleMode(); }
+            handleSendAction();
+        }
+
+        function handleKeyPress(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendAction(); } }
+        function openAuthModal() { document.getElementById('auth-modal').style.display = 'flex'; }
+        function closeAuthModal() { document.getElementById('auth-modal').style.display = 'none'; }
+
+        function switchTab(tab) {
+            document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const conf = document.getElementById('reg-confirm-password').value;
+            if (password !== conf) { alert('رمز عبور مطابقت ندارد.'); return; }
+            const newUser = { username, password, tier: 'free' };
+            usersDB.push(newUser);
+            localStorage.setItem('houshyar_users', JSON.stringify(usersDB));
+            currentUser = newUser;
+            localStorage.setItem('houshyar_current_user', JSON.stringify(currentUser));
+            updateUIForUser(username, false, false);
+            updateQuotaUI();
+            newChat();
+            closeAuthModal();
+            alert('ثبت‌نام موفق!');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            if (username === 'parham' && password === '13951395') {
+                currentUser = { username: 'parham', isAdmin: true };
+                updateUIForUser('parham (مدیر کل)', true, false);
+            } else if (username === 'radin' && password === '13941394') {
+                currentUser = { username: 'radin', isVice: true };
+                updateUIForUser('radin (معاون)', false, true);
+            } else {
+                const user = usersDB.find(u => u.username === username && u.password === password);
+                if (!user) { alert('اطلاعات اشتباه است.'); return; }
+                currentUser = user;
+                updateUIForUser(user.username, false, false);
+            }
+            localStorage.setItem('houshyar_current_user', JSON.stringify(currentUser));
+            updateQuotaUI();
+            loadUserChats();
+            newChat();
+            closeAuthModal();
+        }
+
+        function updateUIForUser(username, isAdmin, isVice) {
+            document.getElementById('user-display-name').innerText = username;
+            document.getElementById('user-status-text').innerText = isAdmin ? 'مدیر کل' : (isVice ? 'معاونت' : 'کاربر رسمی');
+            document.getElementById('user-avatar').innerText = username.charAt(0).toUpperCase();
+            document.getElementById('auth-btn').innerHTML = `<i class="fa-solid fa-user-check"></i> ${username}`;
+            document.getElementById('admin-panel-btn').style.display = (isAdmin || isVice) ? 'block' : 'none';
+            document.getElementById('logout-btn').style.display = 'block';
+        }
+
         function logoutUser() {
-            if (confirm('آیا می‌خواهی از حساب کاربری خارج شوی؟')) {
-                localStorage.removeItem('houshyar_combined_user');
-                location.reload();
+            if (confirm('خروج از حساب کاربری؟')) {
+                currentUser = null;
+                localStorage.removeItem('houshyar_current_user');
+                document.getElementById('user-display-name').innerText = "کاربر مهمان";
+                document.getElementById('user-status-text').innerText = "نیاز به ورود";
+                document.getElementById('user-avatar').innerText = "هـ";
+                document.getElementById('auth-btn').innerHTML = `<i class="fa-solid fa-user"></i> ورود / ثبت‌نام`;
+                document.getElementById('admin-panel-btn').style.display = 'none';
+                document.getElementById('logout-btn').style.display = 'none';
+                updateQuotaUI();
+                newChat();
+                closeAdminModal();
+                closeProfileModal();
             }
         }
-        function escapeHtml(text) { return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-        function openProfileSettings() { alert('نام کاربری شما: ' + currentUser.username); }
+
+        function openTicketModal() {
+            if (!currentUser) { alert('وارد شوید.'); openAuthModal(); return; }
+            renderUserTickets();
+            document.getElementById('ticket-modal').style.display = 'flex';
+        }
+        function closeTicketModal() { document.getElementById('ticket-modal').style.display = 'none'; }
+        function handleTicketSubmit(e) {
+            e.preventDefault();
+            ticketsDB.push({
+                id: 'tkt_' + Date.now(), username: currentUser.username, subject: document.getElementById('ticket-subject').value, message: document.getElementById('ticket-message').value, reply: '', status: 'در انتظار پاسخ', createdAt: new Date().toLocaleDateString('fa-IR')
+            });
+            try { localStorage.setItem('houshyar_tickets', JSON.stringify(ticketsDB)); } catch(e) {}
+            document.getElementById('ticket-subject').value = '';
+            document.getElementById('ticket-message').value = '';
+            renderUserTickets();
+            alert('تیکت ارسال شد.');
+        }
+
+        function renderUserTickets() {
+            const list = document.getElementById('user-tickets-list');
+            if (!currentUser) return;
+            const myT = ticketsDB.filter(t => t.username === currentUser.username);
+            list.innerHTML = myT.length ? myT.map(t => `<div class="bg-zinc-950 p-3 rounded-xl text-xs space-y-1"><div class="font-bold">${escapeHtml(t.subject)}</div><p class="text-zinc-400">${escapeHtml(t.message)}</p>${t.reply ? `<div class="text-indigo-300">پاسخ: ${escapeHtml(t.reply)}</div>`:''}</div>`).join('') : '<div class="text-xs text-zinc-500 text-center">تیکتی وجود ندارد.</div>';
+        }
+
+        function openProfileModal() {
+            if (!currentUser) { alert('وارد شوید.'); openAuthModal(); return; }
+            document.getElementById('profile-username').value = currentUser.username;
+            document.getElementById('profile-modal').style.display = 'flex';
+        }
+        function closeProfileModal() { document.getElementById('profile-modal').style.display = 'none'; }
+        function handleProfileUpdate(e) {
+            e.preventDefault();
+            const newU = document.getElementById('profile-username').value.trim();
+            const currP = document.getElementById('profile-curr-pass').value;
+            const newP = document.getElementById('profile-new-pass').value;
+            const confP = document.getElementById('profile-confirm-pass').value;
+            if (newP || currP || confP) {
+                if (currP !== currentUser.password) { alert('رمز فعلی اشتباه است.'); return; }
+                if (newP !== confP) { alert('رمز جدید مطابقت ندارد.'); return; }
+                currentUser.password = newP;
+            }
+            currentUser.username = newU;
+            try {
+                localStorage.setItem('houshyar_current_user', JSON.stringify(currentUser));
+                usersDB = usersDB.map(u => u.username === currentUser.username ? currentUser : u);
+                localStorage.setItem('houshyar_users', JSON.stringify(usersDB));
+            } catch(e) {}
+            updateUIForUser(currentUser.username, false, false);
+            closeProfileModal();
+            alert('بروزرسانی شد.');
+        }
+
+        function openAdminModal() {
+            renderAdminReceipts();
+            renderAdminTickets();
+            document.getElementById('admin-modal').style.display = 'flex';
+        }
+        function closeAdminModal() { document.getElementById('admin-modal').style.display = 'none'; }
+
+        function renderAdminReceipts() {
+            const list = document.getElementById('admin-receipts-list');
+            const pending = receiptsDB.filter(r => r.status === 'pending');
+            list.innerHTML = pending.length ? pending.map(r => `<div class="bg-zinc-950 p-3 rounded-xl text-xs flex justify-between items-center"><div>کاربر: ${r.username} | پلن: ${r.planName}</div><a href="${r.image}" target="_blank" class="bg-indigo-600 px-3 py-1 rounded">مشاهده فاکتور</a></div>`).join('') : '<div class="text-xs text-zinc-500 text-center">فاکتوری نیست.</div>';
+        }
+
+        function renderAdminTickets() {
+            const list = document.getElementById('admin-tickets-list');
+            list.innerHTML = ticketsDB.length ? ticketsDB.map((t, idx) => `<div class="bg-zinc-950 p-3 rounded-xl text-xs space-y-2"><div>${t.username}: ${t.subject}</div><input type="text" id="rep-${idx}" class="w-full bg-zinc-900 p-1 rounded" placeholder="پاسخ..."><button onclick="sendReply('${t.id}', ${idx})" class="bg-indigo-600 px-2 py-1 rounded">ارسال</button></div>`).join('') : '';
+        }
+
+        function sendReply(id, idx) {
+            const val = document.getElementById(`rep-${idx}`).value;
+            const t = ticketsDB.find(x => x.id === id);
+            if (t) { t.reply = val; t.status = 'پاسخ داده شده'; localStorage.setItem('houshyar_tickets', JSON.stringify(ticketsDB)); alert('ارسال شد.'); renderAdminTickets(); }
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
     </script>
 </body>
 </html>
