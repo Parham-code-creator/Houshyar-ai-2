@@ -74,6 +74,16 @@
                         <i class="fa-solid fa-headset"></i> پشتیبانی
                     </button>
                 </div>
+
+                <!-- دسترسی به هوشیار آپارات و یوتیوب -->
+                <div class="grid grid-cols-2 gap-1.5 pt-1">
+                    <a href="https://www.aparat.com" target="_blank" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs py-1.5 rounded-lg transition flex items-center justify-center gap-1 font-medium">
+                        <i class="fa-solid fa-video"></i> هوشیار آپارات
+                    </a>
+                    <a href="https://www.youtube.com" target="_blank" class="bg-red-700/20 hover:bg-red-700/30 text-red-300 border border-red-600/30 text-xs py-1.5 rounded-lg transition flex items-center justify-center gap-1 font-medium">
+                        <i class="fa-brands fa-youtube"></i> هوشیار یوتیوب
+                    </a>
+                </div>
             </div>
 
             <!-- گفتگوهای اخیر -->
@@ -90,7 +100,7 @@
         </div>
 
         <div class="p-4 border-t border-zinc-800 flex items-center justify-between shrink-0">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="openProfileModal()" title="مدیریت حساب کاربری">
                 <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-white text-sm" id="user-avatar">هـ</div>
                 <div>
                     <div class="text-sm font-medium text-zinc-200" id="user-display-name">کاربر مهمان</div>
@@ -111,7 +121,7 @@
                 <button onclick="toggleSidebar()" class="text-zinc-400 hover:text-zinc-200 p-2"><i class="fa-solid fa-bars text-lg"></i></button>
                 <div class="flex items-center gap-2">
                     <span class="font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 text-lg">هوشیار</span>
-                    <span class="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-md border border-zinc-700">هوشمند + توضیحات اختصاصی</span>
+                    <span class="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-md border border-zinc-700">هوش مصنوعی تصویرساز پیشرفته</span>
                 </div>
             </div>
             <div class="flex items-center gap-3">
@@ -172,7 +182,44 @@
         </div>
     </main>
 
-    <!-- پنجره ارسال و پیگیری تیکت پشتیبانی -->
+    <!-- پنجره مدیریت حساب کاربری -->
+    <div id="profile-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative space-y-5">
+            <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+                <h3 class="text-lg font-bold text-indigo-400 flex items-center gap-2">
+                    <i class="fa-solid fa-user-gear"></i> مدیریت حساب کاربری
+                </h3>
+                <button onclick="closeProfileModal()" class="text-zinc-400 hover:text-zinc-100"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form onsubmit="handleProfileUpdate(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">تغییر نام کاربری</label>
+                    <input type="text" id="profile-username" required class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="border-t border-zinc-800 pt-3 space-y-3">
+                    <h4 class="text-xs font-bold text-amber-400">تغییر رمز عبور</h4>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-1">رمز عبور فعلی</label>
+                        <input type="password" id="profile-curr-pass" placeholder="••••••••" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-1">رمز عبور جدید</label>
+                        <input type="password" id="profile-new-pass" placeholder="••••••••" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-1">تکرار رمز عبور جدید</label>
+                        <input type="password" id="profile-confirm-pass" placeholder="••••••••" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl text-xs transition">
+                    ذخیره تغییرات حساب کاربری
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- پنجره پشتیبانی -->
     <div id="ticket-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl relative space-y-5 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
@@ -182,7 +229,6 @@
                 <button onclick="closeTicketModal()" class="text-zinc-400 hover:text-zinc-100"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
 
-            <!-- فرم ارسال تیکت جدید -->
             <form onsubmit="handleTicketSubmit(event)" class="space-y-4 bg-zinc-950 p-4 rounded-xl border border-zinc-800">
                 <h4 class="text-xs font-bold text-zinc-300 uppercase tracking-wider">ارسال تیکت جدید</h4>
                 <div>
@@ -198,7 +244,6 @@
                 </button>
             </form>
 
-            <!-- لیست تیکت‌های قبلی کاربر -->
             <div class="space-y-3">
                 <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">تاریخچه تیکت‌های شما</h4>
                 <div id="user-tickets-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
@@ -206,7 +251,7 @@
         </div>
     </div>
 
-    <!-- پنجره خرید و ارتقای اشتراک -->
+    <!-- پنجره خرید اشتراک -->
     <div id="plans-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-3xl w-full p-6 shadow-2xl relative space-y-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
@@ -216,7 +261,6 @@
                 <button onclick="closePlansModal()" class="text-zinc-400 hover:text-zinc-100"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
 
-            <!-- کارت‌های پلن‌ها -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-4 flex flex-col justify-between hover:border-indigo-500 transition">
                     <div>
@@ -268,7 +312,6 @@
                 </div>
             </div>
 
-            <!-- فرم پرداخت کارت به کارت -->
             <div id="payment-box" style="display: none;" class="bg-zinc-950 border border-zinc-800 p-5 rounded-xl space-y-4">
                 <h4 class="text-sm font-bold text-amber-400 border-b border-zinc-800 pb-2">
                     پرداخت جهت اشتراک: <span id="selected-plan-name" class="text-white"></span> (<span id="selected-plan-price" class="text-zinc-300"></span> تومان)
@@ -303,7 +346,7 @@
         </div>
     </div>
 
-    <!-- پنجره ثبت‌نام و ورود -->
+    <!-- پنجره ورود و ثبت نام -->
     <div id="auth-modal" style="display: none;" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative space-y-5">
             <div class="flex items-center justify-between">
@@ -337,6 +380,10 @@
                     <label class="block text-xs font-medium text-zinc-400 mb-1">رمز عبور</label>
                     <input type="password" id="reg-password" required placeholder="رمز عبور" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500">
                 </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-400 mb-1">تکرار رمز عبور</label>
+                    <input type="password" id="reg-confirm-password" required placeholder="تکرار رمز عبور" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500">
+                </div>
                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-xl transition text-sm shadow-md">
                     ثبت‌نام و ایجاد حساب
                 </button>
@@ -344,7 +391,7 @@
         </div>
     </div>
 
-    <!-- پنل مدیریت و معاونت (Admin Panel) -->
+    <!-- پنل مدیریت -->
     <div id="admin-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-zinc-900 border border-amber-500/30 rounded-2xl max-w-3xl w-full p-6 shadow-2xl relative space-y-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
@@ -354,19 +401,16 @@
                 <button onclick="closeAdminModal()" class="text-zinc-400 hover:text-zinc-100"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
 
-            <!-- بررسی فاکتورهای پرداختی کاربران -->
             <div class="space-y-3">
                 <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider">فاکتورها و درخواست‌های واریزی در انتظار تأیید</h4>
                 <div id="admin-receipts-list" class="space-y-2"></div>
             </div>
 
-            <!-- پاسخ به تیکت‌های پشتیبانی کاربران -->
             <div class="space-y-3">
                 <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-wider">مدیریت تیکت‌های پشتیبانی کاربران (همه کاربران)</h4>
                 <div id="admin-tickets-list" class="space-y-2 max-h-50 overflow-y-auto pr-1"></div>
             </div>
 
-            <!-- ارسال اعلان مدیر -->
             <div id="admin-announcement-box" class="bg-zinc-950 border border-zinc-800 p-4 rounded-xl space-y-2">
                 <label class="block text-xs font-bold text-amber-400">ارسال اطلاعیه عمومی مدیر به چت</label>
                 <div class="flex gap-2">
@@ -375,7 +419,6 @@
                 </div>
             </div>
 
-            <!-- لیست کاربران -->
             <div id="admin-users-box" class="space-y-2">
                 <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">لیست کاربران ثبت‌نام شده</h4>
                 <div id="admin-users-list" class="max-h-40 overflow-y-auto space-y-2 pr-1"></div>
@@ -809,6 +852,59 @@
             `).join('');
         }
 
+        function openProfileModal() {
+            if (!currentUser) { alert('لطفاً ابتدا وارد حساب کاربری خود شوید.'); openAuthModal(); return; }
+            document.getElementById('profile-username').value = currentUser.username;
+            document.getElementById('profile-curr-pass').value = '';
+            document.getElementById('profile-new-pass').value = '';
+            document.getElementById('profile-confirm-pass').value = '';
+            document.getElementById('profile-modal').style.display = 'flex';
+        }
+
+        function closeProfileModal() { document.getElementById('profile-modal').style.display = 'none'; }
+
+        function handleProfileUpdate(e) {
+            e.preventDefault();
+            const newUsername = document.getElementById('profile-username').value.trim();
+            const currPass = document.getElementById('profile-curr-pass').value;
+            const newPass = document.getElementById('profile-new-pass').value;
+            const confirmPass = document.getElementById('profile-confirm-pass').value;
+
+            if (currentUser.isAdmin || currentUser.isVice) {
+                alert('امکان تغییر اطلاعات حساب‌های مدیریتی پیش‌فرض وجود ندارد.');
+                closeProfileModal();
+                return;
+            }
+
+            if (newUsername !== currentUser.username && usersDB.some(u => u.username === newUsername)) {
+                alert('این نام کاربری قبلاً توسط شخص دیگری انتخاب شده است!');
+                return;
+            }
+
+            if (newPass || currPass || confirmPass) {
+                if (currPass !== currentUser.password) {
+                    alert('رمز عبور فعلی اشتباه است!');
+                    return;
+                }
+                if (newPass !== confirmPass) {
+                    alert('رمز عبور جدید و تکرار آن مطابقت ندارند!');
+                    return;
+                }
+                currentUser.password = newPass;
+            }
+
+            currentUser.username = newUsername;
+            try {
+                localStorage.setItem('houshyar_current_user', JSON.stringify(currentUser));
+                usersDB = usersDB.map(u => u.username === currentUser.username ? currentUser : u);
+                localStorage.setItem('houshyar_users', JSON.stringify(usersDB));
+            } catch(e) {}
+
+            updateUIForUser(currentUser.username, false, false);
+            closeProfileModal();
+            alert('اطلاعات حساب کاربری با موفقیت بروزرسانی شد.');
+        }
+
         function openAdminModal() {
             const title = document.getElementById('admin-modal-title');
             const annBox = document.getElementById('admin-announcement-box');
@@ -931,32 +1027,30 @@
             else sendMessage();
         }
 
-        // سیستم هوشمند تطبیق موضوع دقیق تصویر بر اساس درخواست کاربر
-        function getDirectImageUrl(text) {
+        // موتور هوشمند تولید و تطبیق تصویر با کیفیت و دقیق بر اساس متن فارسی کاربر
+        function getSmartImageUrl(text) {
             let t = text.toLowerCase();
             
-            // تشخیص موضوع ماشین یا خودرو
-            if (t.includes('ماشین') || t.includes('خودرو') || t.includes('اسپرت') || t.includes('پراید') || t.includes('فلوکس') || t.includes('BMW') || t.includes('بنز')) {
-                return 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1024&q=80';
+            if (t.includes('ماشین') || t.includes('خودرو') || t.includes('اسپرت') || t.includes('پراید') || t.includes('فلوکس') || t.includes('bmw') || t.includes('بنز')) {
+                return 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80';
             }
-            // تشخیص موضوع انسان / چهره / پرتره
             if (t.includes('انسان') || t.includes('مرد') || t.includes('زن') || t.includes('پرتره') || t.includes('چهره')) {
-                return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1024&q=80';
+                return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80';
             }
-            // تشخیص موضوع طبیعت / دریا / کوه / منظره
             if (t.includes('طبیعت') || t.includes('دریا') || t.includes('کوه') || t.includes('منظره') || t.includes('جنگل')) {
-                return 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1024&q=80';
+                return 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80';
             }
-            // تشخیص موضوع حیوانات (گربه، سگ و...)
             if (t.includes('گربه') || t.includes('سگ') || t.includes('حیوان')) {
-                return 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=1024&q=80';
+                return 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=1200&q=80';
             }
-            // تشخیص شهر / معماری / ساختمان
             if (t.includes('شهر') || t.includes('ساختمان') || t.includes('معماری')) {
-                return 'https://images.unsplash.com/photo-1477959858617-67f30bc75b82?auto=format&fit=crop&w=1024&q=80';
+                return 'https://images.unsplash.com/photo-1477959858617-67f30bc75b82?auto=format&fit=crop&w=1200&q=80';
             }
 
-            return 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1024&q=80';
+            // تولید تصویر پویا از موتور Pollinations بر اساس پرامپت انگلیسی بهینه‌شده
+            const encoded = encodeURIComponent(text + ", highly detailed, 4k resolution masterpiece");
+            const randomSeed = Math.floor(Math.random() * 999999);
+            return `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=768&seed=${randomSeed}&nologo=true&model=flux`;
         }
 
         async function generateImage() {
@@ -992,12 +1086,12 @@
                 <div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto">
                     <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-md">هـ</div>
                     <div class="bg-zinc-900 border border-zinc-800 text-zinc-400 px-4 py-3 rounded-2xl rounded-br-sm text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال آماده‌سازی تصویر دقیق درخواست شما...
+                        <i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال طراحی و ساخت تصویر دقیق درخواست شما...
                     </div>
                 </div>`;
             container.scrollTop = container.scrollHeight;
 
-            const imageUrl = getDirectImageUrl(text);
+            const imageUrl = getSmartImageUrl(text);
 
             const img = new Image();
             img.onload = () => {
@@ -1006,8 +1100,7 @@
 
                 incrementQuota('img');
 
-                // توضیحات اضافی و اختصاصی بر اساس درخواست کاربر (مطابق خواسته‌تان)
-                const descriptiveText = `بفرمایید، این هم تصویر مربوط به درخواست شما ("${escapeHtml(text)}") که با بالاترین کیفیت و کاملاً منطبق بر موضوع آماده شده است. امیدوارم از دیدن این تصویر لذت ببرید!`;
+                const descriptiveText = `بفرمایید، این هم از تصویر درخواستی شما ("${escapeHtml(text)}") که مشابه موضوع شماست و با بالاترین کیفیت آماده شده است. امیدوارم از دیدن آن لذت ببرید!`;
 
                 container.innerHTML += `
                     <div class="flex items-start gap-4 max-w-3xl mx-auto">
@@ -1128,11 +1221,13 @@
             if (aiReply) {
                 incrementQuota('msg');
                 const msgId = 'msg-' + Date.now();
+                const descriptivePrefix = `بفرمایید، این هم پاسخ متن شما درباره "${escapeHtml(text)}":\n\n`;
+
                 container.innerHTML += `
                     <div class="flex items-start gap-4 max-w-3xl mx-auto">
                         <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-md">هـ</div>
                         <div class="bg-zinc-900 border border-zinc-800 text-zinc-200 px-4 py-3 rounded-2xl rounded-br-sm text-sm max-w-[85%] leading-relaxed shadow-sm whitespace-pre-line relative group space-y-2">
-                            <span id="${msgId}">${escapeHtml(aiReply)}</span>
+                            <span id="${msgId}">${descriptivePrefix}${escapeHtml(aiReply)}</span>
                             <div class="flex items-center gap-3 pt-2 border-t border-zinc-800 text-xs text-zinc-400">
                                 <button onclick="copyText('${msgId}')" class="hover:text-indigo-400 flex items-center gap-1 transition"><i class="fa-regular fa-copy"></i> کپی متن</button>
                                 <button onclick="speakText(document.getElementById('${msgId}').innerText)" class="hover:text-indigo-400 flex items-center gap-1 transition"><i class="fa-solid fa-volume-high"></i> پخش صوتی</button>
@@ -1194,6 +1289,12 @@
             e.preventDefault();
             const username = document.getElementById('reg-username').value.trim();
             const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('reg-confirm-password').value;
+
+            if (password !== confirmPassword) {
+                alert('رمز عبور و تکرار آن مطابقت ندارند!');
+                return;
+            }
 
             if (username === 'parham' || username === 'radin') { alert('این نام کاربری رزرو شده است!'); return; }
             if (usersDB.some(u => u.username === username)) { alert('این نام کاربری قبلاً ثبت شده است!'); return; }
@@ -1274,21 +1375,24 @@
         }
 
         function logoutUser() {
-            currentUser = null;
-            chatsDB = [];
-            currentChatId = null;
-            try { localStorage.removeItem('houshyar_current_user'); } catch(e) {}
-            document.getElementById('user-display-name').innerText = "کاربر مهمان";
-            document.getElementById('user-status-text').innerText = "نیاز به ورود";
-            document.getElementById('user-avatar').innerText = "هـ";
-            document.getElementById('auth-btn').innerHTML = `<i class="fa-solid fa-user"></i> ورود / ثبت‌نام`;
-            document.getElementById('admin-panel-btn').style.display = 'none';
-            document.getElementById('logout-btn').style.display = 'none';
-            document.getElementById('chat-history-list').innerHTML = `<div class="p-2.5 text-xs text-zinc-500 text-center">هنوز گفتگویی ثبت نشده است.</div>`;
-            updateQuotaUI();
-            newChat();
-            closeAdminModal();
-            alert('با موفقیت از حساب خارج شدید.');
+            if (confirm('آیا می‌خواهی از حساب کاربری خارج شوی؟')) {
+                currentUser = null;
+                chatsDB = [];
+                currentChatId = null;
+                try { localStorage.removeItem('houshyar_current_user'); } catch(e) {}
+                document.getElementById('user-display-name').innerText = "کاربر مهمان";
+                document.getElementById('user-status-text').innerText = "نیاز به ورود";
+                document.getElementById('user-avatar').innerText = "هـ";
+                document.getElementById('auth-btn').innerHTML = `<i class="fa-solid fa-user"></i> ورود / ثبت‌نام`;
+                document.getElementById('admin-panel-btn').style.display = 'none';
+                document.getElementById('logout-btn').style.display = 'none';
+                document.getElementById('chat-history-list').innerHTML = `<div class="p-2.5 text-xs text-zinc-500 text-center">هنوز گفتگویی ثبت نشده است.</div>`;
+                updateQuotaUI();
+                newChat();
+                closeAdminModal();
+                closeProfileModal();
+                alert('با موفقیت از حساب خارج شدید.');
+            }
         }
 
         function renderAdminUsersList() {
