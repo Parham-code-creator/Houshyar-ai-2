@@ -144,8 +144,8 @@
                     <div onclick="sendPreset('یک شعر کوتاه درباره هوش مصنوعی بگو')" class="p-3.5 bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 rounded-xl cursor-pointer transition text-sm text-zinc-300">
                         ✨ یک شعر کوتاه درباره هوش مصنوعی بگو
                     </div>
-                    <div onclick="sendPreset('ساخت ویدیو از طبیعت و ساحل دریا')" class="p-3.5 bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 rounded-xl cursor-pointer transition text-sm text-zinc-300">
-                        🎬 ساخت ویدیو از طبیعت و ساحل دریا
+                    <div onclick="sendPreset('ساخت ویدیو سقوط شهاب سنگ در جو زمین')" class="p-3.5 bg-zinc-900/80 hover:bg-zinc-800/80 border border-zinc-800 rounded-xl cursor-pointer transition text-sm text-zinc-300">
+                        🎬 ساخت ویدیو سقوط شهاب سنگ
                     </div>
                 </div>
             </div>
@@ -243,7 +243,7 @@
         </div>
     </div>
 
-    <!-- پنجره خرید اشتراک با بازه‌های زمانی ۳ ماهه، ۶ ماهه و یکساله با تخفیف ۲۵ هزار تومانی -->
+    <!-- پنجره خرید اشتراک با تخفیف‌های ۲۵ هزار تومانی دوره‌های چندماهه -->
     <div id="plans-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-4xl w-full p-6 shadow-2xl relative space-y-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
@@ -262,9 +262,7 @@
             </div>
 
             <!-- کارت‌های اشتراک -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="plans-container">
-                <!-- بر اساس دورهزمانی انتخاب شده به صورت پویا پر می‌شود -->
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="plans-container"></div>
 
             <div id="payment-box" style="display: none;" class="bg-zinc-950 border border-zinc-800 p-5 rounded-xl space-y-4">
                 <h4 class="text-sm font-bold text-amber-400 border-b border-zinc-800 pb-2">
@@ -386,12 +384,8 @@
             'پرو مکس': 100000
         };
 
-        const baseLimits = {
-            'پریمیوم': { msg: 50, img: 5 },
-            'پرو': { msg: 100, img: 10 },
-            'پرو پریمیوم': { msg: 150, img: 15 },
-            'پرو مکس': { msg: 200, img: 20 }
-        };
+        const DEFAULT_MSG_QUOTA = 25;
+        const DEFAULT_IMG_QUOTA = 5;
 
         try {
             usersDB = JSON.parse(localStorage.getItem('houshyar_users')) || [];
@@ -429,10 +423,10 @@
             const months = parseInt(selectedDuration);
 
             const plans = [
-                { name: 'پریمیوم', color: 'indigo', msg: 50, img: 5 },
-                { name: 'پرو', color: 'purple', msg: 100, img: 10 },
-                { name: 'پرو پریمیوم', color: 'amber', msg: 150, img: 15 },
-                { name: 'پرو مکس', color: 'amber-special', msg: 200, img: 20 }
+                { name: 'پریمیوم', msg: 50, img: 5 },
+                { name: 'پرو', msg: 100, img: 10 },
+                { name: 'پرو پریمیوم', msg: 150, img: 15 },
+                { name: 'پرو مکس', msg: 200, img: 20 }
             ];
 
             container.innerHTML = plans.map(p => {
@@ -512,7 +506,7 @@
                 inputMode = 'video';
                 icon.className = 'fa-solid fa-video text-amber-400';
                 text.innerText = 'ویدیو';
-                input.placeholder = 'توصیف ویدیویی که می‌خواهید ساخته شود (مثلاً: ویدیو طبیعت ساحل)...';
+                input.placeholder = 'توصیف ویدیویی که می‌خواهید ساخته شود (مثلاً: شهاب سنگ در فضا)...';
             } else {
                 inputMode = 'text';
                 icon.className = 'fa-solid fa-message text-indigo-400';
@@ -561,11 +555,11 @@
             container.innerHTML += `<div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold">هـ</div><div class="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400"><i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال رندر و تولید ویدیوی هوش مصنوعی شما...</div></div>`;
             container.scrollTop = container.scrollHeight;
 
-            // ویدیو نمونه مرتبط واقعی برای شبیه‌سازی کامل AI Video
+            // ویدیوهای استاندارد جایگزین پایدار با لینک مستقیم و پرسرعت
             const sampleVideos = [
-                "https://assets.mixkit.co/videos/preview/mixkit-ocean-waves-looping-1188-large.mp4",
-                "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4",
-                "https://assets.mixkit.co/videos/preview/mixkit-top-aerial-shot-of-seashore-with-waves-1090-large.mp4"
+                "https://www.w3schools.com/html/mov_bbb.mp4",
+                "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
             ];
             const videoUrl = sampleVideos[Math.floor(Math.random() * sampleVideos.length)];
 
@@ -580,12 +574,12 @@
                         <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold">هـ</div>
                         <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm space-y-3 max-w-[85%]">
                             <p class="text-zinc-300 font-medium">${desc}</p>
-                            <video src="${videoUrl}" controls autoplay loop class="rounded-xl w-full max-h-[380px] object-cover border border-zinc-800 shadow-lg"></video>
+                            <video src="${videoUrl}" controls autoplay muted loop class="rounded-xl w-full max-h-[380px] object-cover border border-zinc-800 shadow-lg"></video>
                         </div>
                     </div>`;
                 container.scrollTop = container.scrollHeight;
                 saveCurrentChatToStorage(container.innerHTML, 'ویدیو: ' + text);
-            }, 3000);
+            }, 2500);
         }
 
         async function generateImage() {
