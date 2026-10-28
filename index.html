@@ -535,6 +535,16 @@
             else sendMessage();
         }
 
+        // تبدیل متن کاربر به کلیدواژه انگلیسی تمیز برای ساخت تصویر/ویدیو دقیق‌تر
+        function translateToVisualPrompt(text) {
+            let t = text.toLowerCase();
+            if (t.includes('شهاب') || t.includes('سنگ') || t.includes('شهاب‌سنگ')) return 'meteor falling through earth atmosphere fiery glowing rock in space sci-fi cinematic';
+            if (t.includes('ماشین') || t.includes('خودرو') || t.includes('اسپرت')) return 'luxury sports car driving on coastal highway at sunset cinematic 4k';
+            if (t.includes('طبیعت') || t.includes('دریا') || t.includes('ساحل')) return 'beautiful ocean waves crashing on tropical beach sunset cinematic';
+            if (t.includes('فضا') || t.includes('کهکشان')) return 'deep space galaxy stars nebula vibrant colors cinematic 8k';
+            return encodeURIComponent(text);
+        }
+
         async function generateVideo() {
             const input = document.getElementById('user-input');
             const text = input.value.trim();
@@ -552,16 +562,19 @@
             container.scrollTop = container.scrollHeight;
 
             const loadingId = 'loading-' + Date.now();
-            container.innerHTML += `<div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold">هـ</div><div class="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400"><i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال رندر و تولید ویدیوی هوش مصنوعی شما...</div></div>`;
+            container.innerHTML += `<div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full bg-amber-500 flex items-core justify-center text-white text-xs font-bold flex items-center justify-center">هـ</div><div class="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400"><i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال رندر و تولید ویدیوی هوش مصنوعی شما...</div></div>`;
             container.scrollTop = container.scrollHeight;
 
-            // ویدیوهای استاندارد جایگزین پایدار با لینک مستقیم و پرسرعت
-            const sampleVideos = [
-                "https://www.w3schools.com/html/mov_bbb.mp4",
-                "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-                "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
-            ];
-            const videoUrl = sampleVideos[Math.floor(Math.random() * sampleVideos.length)];
+            // انتخاب ویدیو پویا بر اساس موضوع درخواست کاربر تا صفحه طوسی و نامربوط داده نشود
+            let videoUrl = "https://assets.mixkit.co/videos/preview/mixkit-tree-branches-in-the-breeze-1186-large.mp4"; // پیش‌فرض
+            let t = text.toLowerCase();
+            if (t.includes('شهاب') || t.includes('سنگ') || t.includes('فضا') || t.includes('زمین')) {
+                videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
+            } else if (t.includes('دریا') || t.includes('ساحل') || t.includes('آب')) {
+                videoUrl = "https://assets.mixkit.co/videos/preview/mixkit-ocean-waves-looping-1188-large.mp4";
+            } else if (t.includes('طبیعت') || t.includes('جنگل')) {
+                videoUrl = "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4";
+            }
 
             setTimeout(() => {
                 const el = document.getElementById(loadingId);
@@ -571,7 +584,7 @@
                 const desc = `بفرمایید، این هم ویدیوی ساخته شده بر اساس درخواست شما ("${escapeHtml(text)}"):`;
                 container.innerHTML += `
                     <div class="flex items-start gap-4 max-w-3xl mx-auto">
-                        <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold">هـ</div>
+                        <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
                         <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm space-y-3 max-w-[85%]">
                             <p class="text-zinc-300 font-medium">${desc}</p>
                             <video src="${videoUrl}" controls autoplay muted loop class="rounded-xl w-full max-h-[380px] object-cover border border-zinc-800 shadow-lg"></video>
@@ -597,12 +610,14 @@
             input.value = '';
             container.scrollTop = container.scrollHeight;
 
-            const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=768&nologo=true`;
+            const promptKey = translateToVisualPrompt(text);
+            const imageUrl = `https://image.pollinations.ai/prompt/${promptKey}?width=1024&height=768&nologo=true`;
+            
             const img = new Image();
             img.onload = () => {
                 incrementQuota('img');
                 const desc = `بفرمایید، این هم از تصویر درخواستی شما ("${escapeHtml(text)}"):`;
-                container.innerHTML += `<div class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold">هـ</div><div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm space-y-3"><p class="text-zinc-300">${desc}</p><img src="${imageUrl}" class="rounded-xl w-full max-h-[400px] object-cover" /></div></div>`;
+                container.innerHTML += `<div class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div><div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm space-y-3 max-w-[85%]"><p class="text-zinc-300">${desc}</p><img src="${imageUrl}" class="rounded-xl w-full max-h-[400px] object-cover" /></div></div>`;
                 container.scrollTop = container.scrollHeight;
                 saveCurrentChatToStorage(container.innerHTML, 'تصویر: ' + text);
             };
@@ -637,7 +652,7 @@
 
             incrementQuota('msg');
             const descriptivePrefix = `بفرمایید، این هم پاسخ متن شما درباره "${escapeHtml(text)}":\n\n`;
-            container.innerHTML += `<div class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold">هـ</div><div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm text-zinc-200 whitespace-pre-line">${descriptivePrefix}${escapeHtml(aiReply)}</div></div>`;
+            container.innerHTML += `<div class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div><div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm text-zinc-200 whitespace-pre-line">${descriptivePrefix}${escapeHtml(aiReply)}</div></div>`;
             container.scrollTop = container.scrollHeight;
             saveCurrentChatToStorage(container.innerHTML, text);
         }
