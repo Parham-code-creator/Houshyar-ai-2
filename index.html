@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>هوش مصنوعی هوشیار (Houshyar AI)</title>
+    <title>هوش مصنوعی هوشیار AI 2</title>
     <!-- فونت وزیرمتن -->
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <!-- Tailwind CSS -->
@@ -59,7 +59,7 @@
                 <div>
                     <div class="flex items-center justify-between text-[11px] mb-1">
                         <span class="text-zinc-400">تصویر و ویدیو روزانه:</span>
-                        <span id="img-quota-text" class="text-zinc-500 font-bold">0 / 5</span>
+                        <span id="img-quota-text" class="text-zinc-500 font-bold">0 / 2</span>
                     </div>
                     <div class="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
                         <div id="img-quota-bar" class="bg-purple-500 h-full transition-all duration-300" style="width: 0%;"></div>
@@ -125,7 +125,7 @@
             <div class="flex items-center gap-3">
                 <button onclick="toggleSidebar()" class="text-zinc-400 hover:text-zinc-200 p-2"><i class="fa-solid fa-bars text-lg"></i></button>
                 <div class="flex items-center gap-2">
-                    <span class="font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 text-lg">هوشیار</span>
+                    <span class="font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 text-lg">هوشیار AI 2</span>
                     <span class="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-md border border-zinc-700">متن | تصویر | ویدیو ساز AI</span>
                 </div>
             </div>
@@ -142,7 +142,7 @@
                 <div class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 text-2xl text-white">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
                 </div>
-                <h1 class="text-2xl md:text-3xl font-bold text-zinc-100">سلام! من هوشیار هستم، چطور می‌توانم کمکتان کنم؟</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-zinc-100">سلام! من هوشیار AI 2 هستم، چطور می‌توانم کمکتان کنم؟</h1>
                 <p class="text-sm text-zinc-400">می‌توانید چت متنی، چت صوتی، ساخت تصویر یا ساخت ویدیو انجام دهید.</p>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 w-full pt-4 text-right">
@@ -182,7 +182,7 @@
                 </div>
             </div>
             <div class="text-center text-xs text-zinc-500 mt-2">
-                جهت استفاده از سهمیه‌ها ابتدا وارد حساب کاربری خود شوید.
+                هرگونه کپی از این هوش مصنوعی پیگرد قانونی دارد
             </div>
         </div>
     </main>
@@ -258,7 +258,7 @@
         <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-4xl w-full p-6 shadow-2xl relative space-y-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
                 <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2">
-                    <i class="fa-solid fa-crown text-amber-400"></i> خرید اشتراک ویژه هوشیار
+                    <i class="fa-solid fa-crown text-amber-400"></i> خرید اشتراک ویژه هوشیار AI 2
                 </h3>
                 <button onclick="closePlansModal()" class="text-zinc-400 hover:text-zinc-100"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
@@ -348,7 +348,7 @@
         <div class="bg-zinc-900 border border-amber-500/30 rounded-2xl max-w-3xl w-full p-6 shadow-2xl relative space-y-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
                 <h3 id="admin-modal-title" class="text-lg font-bold text-amber-400 flex items-center gap-2">
-                    <i class="fa-solid fa-crown text-amber-400"></i> پنل مدیریت هوشیار
+                    <i class="fa-solid fa-crown text-amber-400"></i> پنل مدیریت هوشیار AI 2
                 </h3>
                 <button onclick="closeAdminModal()" class="text-zinc-400 hover:text-zinc-100"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
@@ -387,7 +387,6 @@
         let recognition = null;
         let isRecording = false;
 
-        // کنترلرهای توقف پردازش
         let currentAbortController = null;
         let currentTimer = null;
         let currentInterval = null;
@@ -400,7 +399,7 @@
         };
 
         const DEFAULT_MSG_QUOTA = 25;
-        const DEFAULT_IMG_QUOTA = 5;
+        const DEFAULT_IMG_QUOTA = 2;
 
         try {
             usersDB = JSON.parse(localStorage.getItem('houshyar_users')) || [];
@@ -438,10 +437,10 @@
             const months = parseInt(selectedDuration);
 
             const plans = [
-                { name: 'پریمیوم', msg: 50, img: 5 },
-                { name: 'پرو', msg: 100, img: 10 },
-                { name: 'پرو پریمیوم', msg: 150, img: 15 },
-                { name: 'پرو مکس', msg: 200, img: 20 }
+                { name: 'پریمیوم', msg: 50, img: 10, video: 5 },
+                { name: 'پرو', msg: 100, img: 15, video: 10 },
+                { name: 'پرو پریمیوم', msg: 150, img: 20, video: 15 },
+                { name: 'پرو مکس', msg: 200, img: 25, video: 20 }
             ];
 
             container.innerHTML = plans.map(p => {
@@ -465,7 +464,8 @@
                         ${discountText}
                         <ul class="text-xs text-zinc-300 space-y-2 my-4 border-t border-zinc-800/80 pt-3">
                             <li><i class="fa-solid fa-check text-green-400 ml-1"></i> روزانه ${p.msg} پیام متنی</li>
-                            <li><i class="fa-solid fa-check text-green-400 ml-1"></i> روزانه ${p.img} تصویر/ویدیو AI</li>
+                            <li><i class="fa-solid fa-check text-green-400 ml-1"></i> روزانه ${p.img} تصویر AI</li>
+                            <li><i class="fa-solid fa-check text-green-400 ml-1"></i> روزانه ${p.video} ویدیو AI</li>
                         </ul>
                     </div>
                     <button onclick="selectPlan('${p.name} (${months} ماهه)', '${priceFormatted}')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-lg text-xs transition">انتخاب و پرداخت</button>
@@ -537,7 +537,7 @@
                     <div class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg text-2xl text-white">
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                     </div>
-                    <h1 class="text-2xl md:text-3xl font-bold text-zinc-100">سلام! من هوشیار هستم، چطور می‌توانم کمکتان کنم؟</h1>
+                    <h1 class="text-2xl md:text-3xl font-bold text-zinc-100">سلام! من هوشیار AI 2 هستم، چطور می‌توانم کمکتان کنم؟</h1>
                     <p class="text-sm text-zinc-400">می‌توانید چت متنی، چت صوتی، ساخت تصویر یا ساخت ویدیو انجام دهید.</p>
                 </div>`;
         }
@@ -550,7 +550,6 @@
             else sendMessage();
         }
 
-        // فعال و غیرفعال کردن دکمه توقف در هنگام پردازش
         function setProcessingState(isProcessing) {
             const sendBtn = document.getElementById('send-btn');
             const stopBtn = document.getElementById('stop-btn');
@@ -563,7 +562,6 @@
             }
         }
 
-        // تابع متوقف کردن عملیات جاری
         function stopCurrentProcess() {
             if (currentAbortController) {
                 currentAbortController.abort();
@@ -578,7 +576,6 @@
                 currentInterval = null;
             }
 
-            // پاک کردن لودینگ‌های فعال در صفحه
             const activeLoadings = document.querySelectorAll('[id^="loading-"], [id^="img-loading-"]');
             activeLoadings.forEach(el => {
                 el.innerHTML = `<div class="text-xs text-red-400 p-3">❌ عملیات توسط کاربر متوقف شد.</div>`;
@@ -631,7 +628,7 @@
             const text = input.value.trim();
             if (!text) return;
 
-            const quota = checkUserQuota('img');
+            const quota = checkUserQuota('video');
             if (!quota.allowed) { alert(quota.message); if (!currentUser) openAuthModal(); return; }
 
             setProcessingState(true);
@@ -655,7 +652,7 @@
             container.scrollTop = container.scrollHeight;
 
             const loadingId = 'loading-' + Date.now();
-            container.innerHTML += `<div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div><div class="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400"><i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال رندر و تولید ویدیوی هوش مصنوعی شما...</div></div>`;
+            container.innerHTML += `<div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div><div class="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400"><i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار AI 2 در حال رندر و تولید ویدیوی هوش مصنوعی شما...</div></div>`;
             container.scrollTop = container.scrollHeight;
 
             let videoUrl = "https://assets.mixkit.co/videos/preview/mixkit-tree-branches-in-the-breeze-1186-large.mp4";
@@ -673,7 +670,7 @@
                 const el = document.getElementById(loadingId);
                 if (el) el.remove();
 
-                incrementQuota('img');
+                incrementQuota('video');
                 const desc = `بفرمایید، این هم ویدیوی ساخته شده بر اساس درخواست شما ("${escapeHtml(text)}"):`;
                 container.innerHTML += `
                     <div class="flex items-start gap-4 max-w-3xl mx-auto">
@@ -688,7 +685,6 @@
             }, 2500);
         }
 
-        // ساخت تصویر با کادر طوسی، انیمیشن نقطه‌چین و تایم دقیق ۴۵ ثانیه + متن راهنمای خواسته شده
         async function generateImage() {
             const input = document.getElementById('user-input');
             const text = input.value.trim();
@@ -718,7 +714,6 @@
 
             const loadingId = 'img-loading-' + Date.now();
             
-            // کادر طوسی با متن و انیمیشن نقطه‌چین و متن راهنمای ۴۵ ثانیه الی ۱ دقیقه
             container.innerHTML += `
                 <div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto">
                     <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
@@ -729,7 +724,6 @@
                 </div>`;
             container.scrollTop = container.scrollHeight;
 
-            // چرخه نقطه‌چین (1 نقطه -> 2 نقطه -> 3 نقطه -> تکرار)
             let dotState = 1;
             currentInterval = setInterval(() => {
                 dotState = (dotState % 3) + 1;
@@ -738,7 +732,6 @@
                 if (textEl) textEl.innerText = `در حال ساخت تصویر ${dots}`;
             }, 500);
 
-            // دقیقاً ۴۵ ثانیه (۴۵۰۰۰ میلی‌ثانیه) انتظار
             currentTimer = setTimeout(() => {
                 clearInterval(currentInterval);
                 currentInterval = null;
@@ -794,7 +787,7 @@
             input.value = '';
             container.scrollTop = container.scrollHeight;
 
-            let aiReply = "پاسخ هوشیار به درخواست شما آماده است.";
+            let aiReply = "پاسخ هوشیار AI 2 به درخواست شما آماده است.";
             currentAbortController = new AbortController();
             
             try {
@@ -904,21 +897,22 @@
             try { data = JSON.parse(localStorage.getItem(quotaKey)); } catch(e) {}
             const now = Date.now();
             if (!data || (now - data.startTime) > 24*60*60*1000) {
-                data = { count: 0, imgCount: 0, startTime: now };
+                data = { count: 0, imgCount: 0, videoCount: 0, startTime: now };
                 try { localStorage.setItem(quotaKey, JSON.stringify(data)); } catch(e) {}
             }
             return { data, quotaKey };
         }
 
         function getMaxQuotas() {
-            if (!currentUser) return { msg: 0, img: 0 };
-            if (currentUser.isAdmin) return { msg: 9999, img: 9999 };
-            if (currentUser.isVice) return { msg: 500, img: 50 };
+            if (!currentUser) return { msg: 0, img: 0, video: 0 };
+            if (currentUser.isAdmin) return { msg: 9999, img: 9999, video: 9999 };
+            if (currentUser.isVice) return { msg: 500, img: 50, video: 50 };
             const tier = currentUser.tier || 'free';
-            if (tier.includes('پریمیوم')) return { msg: 50, img: 5 };
-            if (tier.includes('پرو مکس')) return { msg: 200, img: 20 };
-            if (tier.includes('پرو')) return { msg: 100, img: 10 };
-            return { msg: DEFAULT_MSG_QUOTA, img: DEFAULT_IMG_QUOTA };
+            if (tier.includes('پریمیوم')) return { msg: 50, img: 10, video: 5 };
+            if (tier.includes('پرو مکس')) return { msg: 200, img: 25, video: 20 };
+            if (tier.includes('پرو پریمیوم')) return { msg: 150, img: 20, video: 15 };
+            if (tier.includes('پرو')) return { msg: 100, img: 15, video: 10 };
+            return { msg: DEFAULT_MSG_QUOTA, img: DEFAULT_IMG_QUOTA, video: 2 };
         }
 
         function checkUserQuota(type = 'msg') {
@@ -927,7 +921,8 @@
             const limits = getMaxQuotas();
             const { data } = getUserQuotaData();
             if (type === 'msg' && data.count >= limits.msg) return { allowed: false, message: 'سهمیه پیام متنی تمام شده است.' };
-            if (type === 'img' && data.imgCount >= limits.img) return { allowed: false, message: 'سهمیه تصویر/ویدیو تمام شده است.' };
+            if (type === 'img' && data.imgCount >= limits.img) return { allowed: false, message: 'سهمیه تصویر تمام شده است.' };
+            if (type === 'video' && (data.videoCount || 0) >= limits.video) return { allowed: false, message: 'سهمیه ویدیو تمام شده است.' };
             return { allowed: true };
         }
 
@@ -936,6 +931,7 @@
             const { data, quotaKey } = getUserQuotaData();
             if (type === 'msg') data.count++;
             if (type === 'img') data.imgCount++;
+            if (type === 'video') data.videoCount = (data.videoCount || 0) + 1;
             try { localStorage.setItem(quotaKey, JSON.stringify(data)); } catch(e) {}
             updateQuotaUI();
         }
@@ -949,7 +945,7 @@
             if (!currentUser) {
                 quotaText.innerText = "نیاز به ورود";
                 quotaBar.style.width = "0%";
-                imgQuotaText.innerText = "0 / 0";
+                imgQuotaText.innerText = "0 / 2";
                 imgQuotaBar.style.width = "0%";
                 tierBadge.innerText = "رایگان";
                 return;
