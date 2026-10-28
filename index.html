@@ -535,7 +535,24 @@
             else sendMessage();
         }
 
-        // تبدیل متن کاربر به کلیدواژه انگلیسی تمیز برای ساخت تصویر/ویدیو دقیق‌تر
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => alert('متن با موفقیت کپی شد!'));
+        }
+
+        function editMessage(text) {
+            document.getElementById('user-input').value = text;
+            document.getElementById('user-input').focus();
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'fa-IR';
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
         function translateToVisualPrompt(text) {
             let t = text.toLowerCase();
             if (t.includes('شهاب') || t.includes('سنگ') || t.includes('شهاب‌سنگ')) return 'meteor falling through earth atmosphere fiery glowing rock in space sci-fi cinematic';
@@ -562,11 +579,10 @@
             container.scrollTop = container.scrollHeight;
 
             const loadingId = 'loading-' + Date.now();
-            container.innerHTML += `<div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full bg-amber-500 flex items-core justify-center text-white text-xs font-bold flex items-center justify-center">هـ</div><div class="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400"><i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال رندر و تولید ویدیوی هوش مصنوعی شما...</div></div>`;
+            container.innerHTML += `<div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div><div class="bg-zinc-900 border border-zinc-800 p-3 rounded-2xl text-xs text-zinc-400"><i class="fa-solid fa-circle-notch animate-spin"></i> هوشیار در حال رندر و تولید ویدیوی هوش مصنوعی شما...</div></div>`;
             container.scrollTop = container.scrollHeight;
 
-            // انتخاب ویدیو پویا بر اساس موضوع درخواست کاربر تا صفحه طوسی و نامربوط داده نشود
-            let videoUrl = "https://assets.mixkit.co/videos/preview/mixkit-tree-branches-in-the-breeze-1186-large.mp4"; // پیش‌فرض
+            let videoUrl = "https://assets.mixkit.co/videos/preview/mixkit-tree-branches-in-the-breeze-1186-large.mp4";
             let t = text.toLowerCase();
             if (t.includes('شهاب') || t.includes('سنگ') || t.includes('فضا') || t.includes('زمین')) {
                 videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
@@ -588,6 +604,10 @@
                         <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm space-y-3 max-w-[85%]">
                             <p class="text-zinc-300 font-medium">${desc}</p>
                             <video src="${videoUrl}" controls autoplay muted loop class="rounded-xl w-full max-h-[380px] object-cover border border-zinc-800 shadow-lg"></video>
+                            <div class="flex items-center gap-3 pt-2 text-zinc-400 text-xs border-t border-zinc-800">
+                                <button onclick="copyText('${escapeHtml(desc)}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-regular fa-copy"></i> کپی متن</button>
+                                <button onclick="editMessage('${escapeHtml(text)}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-solid fa-pen"></i> ویرایش پیام</button>
+                            </div>
                         </div>
                     </div>`;
                 container.scrollTop = container.scrollHeight;
@@ -617,7 +637,18 @@
             img.onload = () => {
                 incrementQuota('img');
                 const desc = `بفرمایید، این هم از تصویر درخواستی شما ("${escapeHtml(text)}"):`;
-                container.innerHTML += `<div class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div><div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm space-y-3 max-w-[85%]"><p class="text-zinc-300">${desc}</p><img src="${imageUrl}" class="rounded-xl w-full max-h-[400px] object-cover" /></div></div>`;
+                container.innerHTML += `
+                    <div class="flex items-start gap-4 max-w-3xl mx-auto">
+                        <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
+                        <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm space-y-3 max-w-[85%]">
+                            <p class="text-zinc-300">${desc}</p>
+                            <img src="${imageUrl}" class="rounded-xl w-full max-h-[400px] object-cover" />
+                            <div class="flex items-center gap-3 pt-2 text-zinc-400 text-xs border-t border-zinc-800">
+                                <button onclick="copyText('${escapeHtml(desc)}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-regular fa-copy"></i> کپی متن</button>
+                                <button onclick="editMessage('${escapeHtml(text)}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-solid fa-pen"></i> ویرایش پیام</button>
+                            </div>
+                        </div>
+                    </div>`;
                 container.scrollTop = container.scrollHeight;
                 saveCurrentChatToStorage(container.innerHTML, 'تصویر: ' + text);
             };
@@ -652,7 +683,20 @@
 
             incrementQuota('msg');
             const descriptivePrefix = `بفرمایید، این هم پاسخ متن شما درباره "${escapeHtml(text)}":\n\n`;
-            container.innerHTML += `<div class="flex items-start gap-4 max-w-3xl mx-auto"><div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div><div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm text-zinc-200 whitespace-pre-line">${descriptivePrefix}${escapeHtml(aiReply)}</div></div>`;
+            const fullReplyText = descriptivePrefix + aiReply;
+            
+            container.innerHTML += `
+                <div class="flex items-start gap-4 max-w-3xl mx-auto">
+                    <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
+                    <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl text-sm text-zinc-200 whitespace-pre-line space-y-3 max-w-[85%]">
+                        <div>${escapeHtml(fullReplyText)}</div>
+                        <div class="flex items-center gap-3 pt-2 text-zinc-400 text-xs border-t border-zinc-800">
+                            <button onclick="copyText('${escapeHtml(fullReplyText)}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-regular fa-copy"></i> کپی متن</button>
+                            <button onclick="editMessage('${escapeHtml(text)}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-solid fa-pen"></i> ویرایش پیام</button>
+                            <button onclick="speakText('${escapeHtml(aiReply)}')" class="hover:text-indigo-400 flex items-center gap-1"><i class="fa-solid fa-volume-high"></i> پخش صوتی</button>
+                        </div>
+                    </div>
+                </div>`;
             container.scrollTop = container.scrollHeight;
             saveCurrentChatToStorage(container.innerHTML, text);
         }
