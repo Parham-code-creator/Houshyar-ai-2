@@ -302,20 +302,31 @@
         </div>
     </div>
 
-    <!-- پنل مدیریت -->
+    <!-- پنل مدیریت (کامل و اصلاح شده با بخش فاکتورها و تیکت‌ها) -->
     <div id="admin-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-zinc-900 border border-amber-500/30 rounded-2xl max-w-3xl w-full p-6 shadow-2xl relative space-y-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
                 <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2"><i class="fa-solid fa-crown"></i> پنل مدیریت</h3>
                 <button onclick="closeAdminModal()" class="text-zinc-400 hover:text-zinc-100"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
+            
             <div class="space-y-3">
-                <h4 class="text-xs font-bold text-amber-400">فاکتورهای در انتظار تأیید</h4>
-                <div id="admin-receipts-list" class="space-y-2"></div>
+                <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider">فاکتورها و رسیدهای واریزی در انتظار تأیید</h4>
+                <div id="admin-receipts-list" class="space-y-2">
+                    <div class="text-xs text-zinc-500 text-center py-2">هیچ فاکتوری در انتظار تأیید نیست.</div>
+                </div>
             </div>
+
+            <div class="space-y-3 border-t border-zinc-800 pt-4">
+                <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-wider">مدیریت تیکت‌های پشتیبانی کاربران</h4>
+                <div id="admin-tickets-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                    <div class="text-xs text-zinc-500 text-center py-2">هیچ تیکتی ثبت نشده است.</div>
+                </div>
+            </div>
+
             <div class="flex justify-between border-t border-zinc-800 pt-4">
-                <button onclick="logoutUser()" class="bg-red-600/20 text-red-400 px-4 py-2 rounded-xl text-xs">خروج</button>
-                <button onclick="closeAdminModal()" class="bg-zinc-800 text-zinc-300 px-4 py-2 rounded-xl text-xs">بستن</button>
+                <button onclick="logoutUser()" class="bg-red-600/20 text-red-400 hover:bg-red-600/30 px-4 py-2 rounded-xl text-xs transition">خروج از حساب</button>
+                <button onclick="closeAdminModal()" class="bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-4 py-2 rounded-xl text-xs transition">بستن پنل</button>
             </div>
         </div>
     </div>
@@ -1110,8 +1121,99 @@
             showToast('تغییرات با موفقیت ذخیره شد.');
         }
 
-        function openAdminModal() { document.getElementById('admin-modal').style.display = 'flex'; }
+        // توابع کامل مدیریت پنل ادمین (تأیید فاکتورها و پاسخ به تیکت‌ها)
+        function openAdminModal() {
+            renderAdminReceipts();
+            renderAdminTickets();
+            document.getElementById('admin-modal').style.display = 'flex';
+        }
         function closeAdminModal() { document.getElementById('admin-modal').style.display = 'none'; }
+
+        function renderAdminReceipts() {
+            const list = document.getElementById('admin-receipts-list');
+            const pending = receiptsDB.filter(r => r.status === 'pending');
+            if (!pending.length) {
+                list.innerHTML = `<div class="text-xs text-zinc-500 text-center py-2">هیچ فاکتوری در انتظار تأیید نیست.</div>`;
+                return;
+            }
+            list.innerHTML = pending.map(r => `
+                <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-xs space-y-2">
+                    <div class="flex justify-between font-bold text-zinc-200">
+                        <span>کاربر: ${escapeHtml(r.username)} (${escapeHtml(r.payerName)})</span>
+                        <span class="text-amber-400">${r.planName} - ${r.planPrice} تومان</span>
+                    </div>
+                    <div><a href="${r.image}" target="_blank" class="text-indigo-400 underline">مشاهده تصویر رسید فاکتور</a></div>
+                    <div class="flex gap-2 pt-1">
+                        <button onclick="approveReceipt('${r.id}')" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded-lg font-medium transition">تأیید و فعال‌سازی اشتراک</button>
+                        <button onclick="rejectReceipt('${r.id}')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg font-medium transition">رد فاکتور</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function approveReceipt(id) {
+            const rec = receiptsDB.find(r => r.id === id);
+            if (!rec) return;
+            rec.status = 'approved';
+            
+            // ارتقای سطح کاربر مربوطه
+            let targetUser = usersDB.find(u => u.username === rec.username);
+            if (targetUser) {
+                targetUser.tier = rec.planName;
+                localStorage.setItem('houshyar_users', JSON.stringify(usersDB));
+                if (currentUser && currentUser.username === targetUser.username) {
+                    currentUser = targetUser;
+                    localStorage.setItem('houshyar_current_user', JSON.stringify(currentUser));
+                    updateQuotaUI();
+                }
+            }
+            try { localStorage.setItem('houshyar_receipts', JSON.stringify(receiptsDB)); } catch(e) {}
+            renderAdminReceipts();
+            showToast('فاکتور تأیید و اشتراک کاربر فعال شد.');
+        }
+
+        function rejectReceipt(id) {
+            receiptsDB = receiptsDB.filter(r => r.id !== id);
+            try { localStorage.setItem('houshyar_receipts', JSON.stringify(receiptsDB)); } catch(e) {}
+            renderAdminReceipts();
+            showToast('فاکتور رد شد.', 'error');
+        }
+
+        function renderAdminTickets() {
+            const list = document.getElementById('admin-tickets-list');
+            if (!ticketsDB.length) {
+                list.innerHTML = `<div class="text-xs text-zinc-500 text-center py-2">هیچ تیکتی ثبت نشده است.</div>`;
+                return;
+            }
+            list.innerHTML = ticketsDB.map(t => `
+                <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-xs space-y-2">
+                    <div class="flex justify-between font-bold text-indigo-400">
+                        <span>${escapeHtml(t.username)}: ${escapeHtml(t.subject)}</span>
+                        <span class="text-zinc-400">${t.status}</span>
+                    </div>
+                    <p class="text-zinc-300">${escapeHtml(t.message)}</p>
+                    ${t.reply ? `<div class="bg-zinc-900 p-2 rounded-lg text-emerald-400">پاسخ مدیر: ${escapeHtml(t.reply)}</div>` : ''}
+                    <div class="flex gap-2 pt-1">
+                        <input type="text" id="reply-input-${t.id}" placeholder="پاسخ به تیکت..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-zinc-100 focus:outline-none">
+                        <button onclick="replyTicket('${t.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg font-medium transition">ارسال پاسخ</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function replyTicket(id) {
+            const input = document.getElementById(`reply-input-${id}`);
+            const replyText = input ? input.value.trim() : '';
+            if (!replyText) return;
+            const tkt = ticketsDB.find(t => t.id === id);
+            if (tkt) {
+                tkt.reply = replyText;
+                tkt.status = 'پاسخ داده شد';
+                try { localStorage.setItem('houshyar_tickets', JSON.stringify(ticketsDB)); } catch(e) {}
+                renderAdminTickets();
+                showToast('پاسخ تیکت ارسال شد.');
+            }
+        }
 
         function handleKeyPress(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendAction(); } }
         function escapeHtml(text) { return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
