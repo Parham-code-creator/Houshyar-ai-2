@@ -316,7 +316,7 @@
         </div>
     </div>
 
-    <!-- پنل مدیریت (کامل با مسدودسازی، بررسی مکالمات و مدیریت تیکت‌ها) -->
+    <!-- پنل مدیریت -->
     <div id="admin-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-zinc-900 border border-amber-500/30 rounded-2xl max-w-4xl w-full p-6 shadow-2xl relative space-y-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
@@ -324,13 +324,11 @@
                 <button onclick="closeAdminModal()" class="text-zinc-400 hover:text-zinc-100"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             
-            <!-- لیست کاربران و مسدودسازی -->
             <div class="space-y-3">
-                <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider" id="ui-admin-users-title">مدیریت کاربران و وضعیت اشتراک</h4>
+                <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider" id="ui-admin-users-title">مدیریت کاربران و مسدودسازی</h4>
                 <div id="admin-users-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
             </div>
 
-            <!-- فاکتورها و رسیدهای واریزی -->
             <div class="space-y-3 border-t border-zinc-800 pt-4">
                 <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider" id="ui-admin-rec-title">فاکتورها و رسیدهای واریزی در انتظار تأیید</h4>
                 <div id="admin-receipts-list" class="space-y-2">
@@ -338,7 +336,6 @@
                 </div>
             </div>
 
-            <!-- تیکت‌های پشتیبانی -->
             <div class="space-y-3 border-t border-zinc-800 pt-4">
                 <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-wider" id="ui-admin-tkt-title">مدیریت تیکت‌های پشتیبانی کاربران</h4>
                 <div id="admin-tickets-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
@@ -413,7 +410,8 @@
                 welcomeDesc: "می‌توانید چت متنی (فارسی/انگلیسی) یا ساخت تصویر انجام دهید.",
                 inputPlaceholder: "پیام خود را بنویسید...",
                 imagePlaceholder: "توصیف تصویری که می‌خواهید ساخته شود...",
-                imgLoadingText: "⏳ در حال ساخت تصویر (ممکن است ۴۵ ثانیه الی ۱ دقیقه طول بکشد)...",
+                imgLoadingText: "⏳ در حال ساخت تصویر",
+                imagePrefix: "تصویر: ",
                 copy: "کپی",
                 edit: "ویرایش",
                 voicePlay: "پخش صوتی",
@@ -479,7 +477,8 @@
                 welcomeDesc: "You can chat with text (Persian/English) or generate images.",
                 inputPlaceholder: "Type your message...",
                 imagePlaceholder: "Describe the image you want to generate...",
-                imgLoadingText: "⏳ Generating image (may take 45 seconds to 1 minute)...",
+                imgLoadingText: "⏳ Generating image",
+                imagePrefix: "Image: ",
                 copy: "Copy",
                 edit: "Edit",
                 voicePlay: "Voice Play",
@@ -547,7 +546,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             applyLanguage(currentLang);
             if (currentUser) {
-                // بررسی مسدود بودن کاربر
                 const dbUser = usersDB.find(u => u.username === currentUser.username);
                 if (dbUser && dbUser.banUntil && Date.now() < dbUser.banUntil) {
                     showToast('حساب کاربری شما مسدود شده است.', 'error');
@@ -853,17 +851,43 @@
                 <div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto">
                     <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
                     <div class="bg-zinc-800 border border-zinc-700 w-full max-w-[450px] p-6 rounded-2xl flex flex-col items-center justify-center text-white space-y-3 shadow-lg">
-                        <div class="text-xs font-bold text-amber-300 text-center leading-relaxed">${t.imgLoadingText}</div>
+                        <div id="${loadingId}-text" class="text-sm font-bold text-amber-300 text-center tracking-wide">⏳ در حال ساخت تصویر.</div>
                     </div>
                 </div>`;
             container.scrollTop = container.scrollHeight;
 
+            // افکت پویا‌ی نقطه چین (۱ نقطه، ۲ نقطه، ۳ نقطه به صورت مدام تا پایان)
+            let dotState = 1;
+            currentInterval = setInterval(() => {
+                dotState = (dotState % 3) + 1;
+                const dots = '.'.repeat(dotState);
+                const elText = document.getElementById(`${loadingId}-text`);
+                if (elText) {
+                    elText.innerText = `${t.imgLoadingText}${dots} (ممکن است ۴۵ ثانیه الی ۱ دقیقه طول بکشد)`;
+                }
+            }, 800);
+
+            // انتخاب هوشمند عکس بر اساس کلیدواژه ورودی کاربر
+            let imageUrl = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
+            const lowerText = text.toLowerCase();
+            if (lowerText.includes('ماشین') || lowerText.includes('car') || lowerText.includes('خودرو')) {
+                imageUrl = 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80';
+            } else if (lowerText.includes('گربه') || lowerText.includes('cat')) {
+                imageUrl = 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=1200&q=80';
+            } else if (lowerText.includes('سگ') || lowerText.includes('dog')) {
+                imageUrl = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=1200&q=80';
+            } else if (lowerText.includes('طبیعت') || lowerText.includes('nature') || lowerText.includes('منظره')) {
+                imageUrl = 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80';
+            } else if (lowerText.includes('دریا') || lowerText.includes('sea') || lowerText.includes('beach')) {
+                imageUrl = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80';
+            }
+
             currentTimer = setTimeout(() => {
+                clearInterval(currentInterval);
                 setProcessingState(false);
                 const el = document.getElementById(loadingId);
                 if (el) el.remove();
 
-                const imageUrl = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
                 incrementQuota('img');
                 container.innerHTML += `
                     <div class="flex items-start gap-4 max-w-3xl mx-auto">
@@ -873,7 +897,7 @@
                         </div>
                     </div>`;
                 container.scrollTop = container.scrollHeight;
-                saveCurrentChatToStorage(container.innerHTML, 'تصویر: ' + text);
+                saveCurrentChatToStorage(container.innerHTML, t.imagePrefix + text);
             }, 48000);
         }
 
@@ -1332,7 +1356,6 @@
             showToast(currentLang === 'en' ? 'Changes saved successfully.' : 'تغییرات با موفقیت ذخیره شد.');
         }
 
-        // پنل مدیریت
         function openAdminModal() {
             renderAdminUsers();
             renderAdminReceipts();
@@ -1464,7 +1487,6 @@
 
         function renderAdminTickets() {
             const list = document.getElementById('admin-tickets-list');
-            // فقط تیکت‌هایی که پاسخ داده نشده‌اند (یا بسته نشده‌اند) نمایش داده شوند
             const activeTickets = ticketsDB.filter(t => !t.isClosed);
             if (!activeTickets.length) {
                 list.innerHTML = `<div class="text-xs text-zinc-500 text-center py-2">${translations[currentLang].noTkt}</div>`;
@@ -1494,7 +1516,7 @@
             if (tkt) {
                 tkt.reply = replyText;
                 tkt.status = currentLang === 'en' ? 'Replied & Closed' : 'پاسخ داده شد و بسته شد';
-                tkt.isClosed = true; // بسته شدن تیکت برای پنل مدیر
+                tkt.isClosed = true;
                 try { localStorage.setItem('houshyar_tickets', JSON.stringify(ticketsDB)); } catch(e) {}
                 renderAdminTickets();
                 showToast(currentLang === 'en' ? 'Ticket replied and closed.' : 'تیکت پاسخ داده شد و از پنل بسته شد.');
