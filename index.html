@@ -184,7 +184,7 @@
         </div>
     </main>
 
-    <!-- پنجره تأیید گرافیکی (Modal) برای خروج، پاکسازی یا تغییر زبان -->
+    <!-- پنجره تأیید گرافیکی (Modal) -->
     <div id="confirm-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative space-y-4 text-center">
             <div class="w-12 h-12 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center mx-auto text-xl">
@@ -316,21 +316,29 @@
         </div>
     </div>
 
-    <!-- پنل مدیریت -->
+    <!-- پنل مدیریت (کامل با مسدودسازی، بررسی مکالمات و مدیریت تیکت‌ها) -->
     <div id="admin-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-zinc-900 border border-amber-500/30 rounded-2xl max-w-3xl w-full p-6 shadow-2xl relative space-y-6 max-h-[90vh] overflow-y-auto">
+        <div class="bg-zinc-900 border border-amber-500/30 rounded-2xl max-w-4xl w-full p-6 shadow-2xl relative space-y-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
                 <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2"><i class="fa-solid fa-crown"></i> <span id="ui-admin-title">پنل مدیریت</span></h3>
                 <button onclick="closeAdminModal()" class="text-zinc-400 hover:text-zinc-100"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             
+            <!-- لیست کاربران و مسدودسازی -->
             <div class="space-y-3">
+                <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider" id="ui-admin-users-title">مدیریت کاربران و وضعیت اشتراک</h4>
+                <div id="admin-users-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+            </div>
+
+            <!-- فاکتورها و رسیدهای واریزی -->
+            <div class="space-y-3 border-t border-zinc-800 pt-4">
                 <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider" id="ui-admin-rec-title">فاکتورها و رسیدهای واریزی در انتظار تأیید</h4>
                 <div id="admin-receipts-list" class="space-y-2">
                     <div class="text-xs text-zinc-500 text-center py-2" id="ui-no-rec">هیچ فاکتوری در انتظار تأیید نیست.</div>
                 </div>
             </div>
 
+            <!-- تیکت‌های پشتیبانی -->
             <div class="space-y-3 border-t border-zinc-800 pt-4">
                 <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-wider" id="ui-admin-tkt-title">مدیریت تیکت‌های پشتیبانی کاربران</h4>
                 <div id="admin-tickets-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
@@ -342,6 +350,17 @@
                 <button onclick="confirmLogout()" class="bg-red-600/20 text-red-400 hover:bg-red-600/30 px-4 py-2 rounded-xl text-xs transition" id="ui-admin-logout">خروج از حساب</button>
                 <button onclick="closeAdminModal()" class="bg-zinc-800 text-zinc-300 hover:bg-zinc-700 px-4 py-2 rounded-xl text-xs transition" id="ui-admin-close">بستن پنل</button>
             </div>
+        </div>
+    </div>
+
+    <!-- مدال نمایش مکالمات کاربر برای مدیر -->
+    <div id="admin-chats-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative space-y-4 max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+                <h3 id="admin-chats-title" class="text-sm font-bold text-indigo-400">مکالمات کاربر</h3>
+                <button onclick="closeAdminChatsModal()" class="text-zinc-400 hover:text-zinc-100"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div id="admin-chats-content" class="space-y-3 text-xs text-zinc-200"></div>
         </div>
     </div>
 
@@ -427,6 +446,7 @@
                 cardLabel: "شماره کارت:",
                 receiptBtn: "ارسال رسید فاکتور",
                 adminTitle: "پنل مدیریت",
+                adminUsersTitle: "مدیریت کاربران و مسدودسازی",
                 adminRecTitle: "فاکتورها و رسیدهای واریزی در انتظار تأیید",
                 adminTktTitle: "مدیریت تیکت‌های پشتیبانی کاربران",
                 noRec: "هیچ فاکتوری در انتظار تأیید نیست.",
@@ -492,6 +512,7 @@
                 cardLabel: "Card Number:",
                 receiptBtn: "Submit Payment Receipt",
                 adminTitle: "Admin Panel",
+                adminUsersTitle: "User Management & Banning",
                 adminRecTitle: "Pending Receipts & Invoices",
                 adminTktTitle: "User Support Tickets",
                 noRec: "No pending receipts found.",
@@ -526,8 +547,16 @@
         document.addEventListener('DOMContentLoaded', () => {
             applyLanguage(currentLang);
             if (currentUser) {
-                updateUIForUser(currentUser.username, currentUser.isAdmin, currentUser.isVice);
-                loadUserChats();
+                // بررسی مسدود بودن کاربر
+                const dbUser = usersDB.find(u => u.username === currentUser.username);
+                if (dbUser && dbUser.banUntil && Date.now() < dbUser.banUntil) {
+                    showToast('حساب کاربری شما مسدود شده است.', 'error');
+                    currentUser = null;
+                    localStorage.removeItem('houshyar_current_user');
+                } else {
+                    updateUIForUser(currentUser.username, currentUser.isAdmin, currentUser.isVice);
+                    loadUserChats();
+                }
             }
             updateQuotaUI();
             newChat();
@@ -601,6 +630,7 @@
             document.getElementById('ui-receipt-btn').innerText = t.receiptBtn;
 
             document.getElementById('ui-admin-title').innerText = t.adminTitle;
+            document.getElementById('ui-admin-users-title').innerText = t.adminUsersTitle;
             document.getElementById('ui-admin-rec-title').innerText = t.adminRecTitle;
             document.getElementById('ui-admin-tkt-title').innerText = t.adminTktTitle;
             document.getElementById('ui-no-rec').innerText = t.noRec;
@@ -1116,7 +1146,7 @@
             const password = document.getElementById('reg-password').value;
             const conf = document.getElementById('reg-confirm-password').value;
             if (password !== conf) { showToast(currentLang === 'en' ? 'Passwords do not match.' : 'رمز عبور مطابقت ندارد.', 'error'); return; }
-            const newUser = { username, password, tier: 'free' };
+            const newUser = { username, password, tier: 'رایگان', banUntil: 0 };
             usersDB.push(newUser);
             localStorage.setItem('houshyar_users', JSON.stringify(usersDB));
             currentUser = newUser;
@@ -1141,6 +1171,10 @@
             } else {
                 const user = usersDB.find(u => u.username === username && u.password === password);
                 if (!user) { showToast(currentLang === 'en' ? 'Invalid username or password.' : 'نام کاربری یا رمز عبور اشتباه است.', 'error'); return; }
+                if (user.banUntil && Date.now() < user.banUntil) {
+                    showToast('حساب کاربری شما تا تاریخ مشخصی مسدود است.', 'error');
+                    return;
+                }
                 currentUser = user;
                 updateUIForUser(user.username, false, false);
             }
@@ -1209,6 +1243,7 @@
             document.getElementById('ticket-modal').style.display = 'flex';
         }
         function closeTicketModal() { document.getElementById('ticket-modal').style.display = 'none'; }
+        
         function handleTicketSubmit(e) {
             e.preventDefault();
             ticketsDB.push({
@@ -1225,7 +1260,27 @@
             const list = document.getElementById('user-tickets-list');
             if (!currentUser) return;
             const myT = ticketsDB.filter(t => t.username === currentUser.username);
-            list.innerHTML = myT.length ? myT.map(t => `<div class="bg-zinc-950 p-3 rounded-xl text-xs space-y-1"><div class="font-bold">${escapeHtml(t.subject)}</div><p class="text-zinc-400">${escapeHtml(t.message)}</p>${t.reply ? `<div class="text-emerald-400">پاسخ: ${escapeHtml(t.reply)}</div>` : ''}</div>`).join('') : `<div class="text-xs text-zinc-500 text-center">${currentLang === 'en' ? 'No tickets.' : 'تیکتی نیست.'}</div>`;
+            list.innerHTML = myT.length ? myT.map(t => `
+                <div class="bg-zinc-950 p-3 rounded-xl text-xs space-y-1 relative">
+                    <div class="font-bold flex justify-between">
+                        <span>${escapeHtml(t.subject)}</span>
+                        ${!t.reply ? `<button onclick="deleteMyTicket('${t.id}')" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    </div>
+                    <p class="text-zinc-400">${escapeHtml(t.message)}</p>
+                    ${t.reply ? `<div class="text-emerald-400">پاسخ مدیر: ${escapeHtml(t.reply)}</div>` : '<div class="text-amber-400 text-[10px]">در انتظار پاسخ مدیر</div>'}
+                </div>`).join('') : `<div class="text-xs text-zinc-500 text-center">${currentLang === 'en' ? 'No tickets.' : 'تیکتی نیست.'}</div>`;
+        }
+
+        function deleteMyTicket(id) {
+            const tkt = ticketsDB.find(t => t.id === id);
+            if (tkt && !tkt.reply) {
+                ticketsDB = ticketsDB.filter(t => t.id !== id);
+                try { localStorage.setItem('houshyar_tickets', JSON.stringify(ticketsDB)); } catch(e) {}
+                renderUserTickets();
+                showToast(currentLang === 'en' ? 'Ticket deleted.' : 'تیکت شما حذف شد.');
+            } else {
+                showToast('تیکت پاسخ داده شده قابل حذف نیست.', 'error');
+            }
         }
 
         function openProfileModal() {
@@ -1277,12 +1332,84 @@
             showToast(currentLang === 'en' ? 'Changes saved successfully.' : 'تغییرات با موفقیت ذخیره شد.');
         }
 
+        // پنل مدیریت
         function openAdminModal() {
+            renderAdminUsers();
             renderAdminReceipts();
             renderAdminTickets();
             document.getElementById('admin-modal').style.display = 'flex';
         }
         function closeAdminModal() { document.getElementById('admin-modal').style.display = 'none'; }
+
+        function renderAdminUsers() {
+            const list = document.getElementById('admin-users-list');
+            if (!usersDB.length) {
+                list.innerHTML = `<div class="text-xs text-zinc-500 text-center py-2">هیچ کاربری ثبت نام نکرده است.</div>`;
+                return;
+            }
+            list.innerHTML = usersDB.map(u => {
+                const isBanned = u.banUntil && Date.now() < u.banUntil;
+                const tierInfo = u.tier || 'کاربر معمولی';
+                return `
+                <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-xs flex flex-col md:flex-row items-center justify-between gap-3">
+                    <div>
+                        <div class="font-bold text-zinc-200">${escapeHtml(u.username)}</div>
+                        <div class="text-amber-400">اشتراک: ${tierInfo} ${isBanned ? '<span class="text-red-400 font-bold">(مسدود شده)</span>' : ''}</div>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button onclick="viewUserChats('${u.username}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1.5 rounded-lg">مشاهده مکالمات</button>
+                        <select id="ban-duration-${u.username}" class="bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1 text-zinc-200">
+                            <option value="1">۱ روز</option>
+                            <option value="7">۷ روز (۱ هفته)</option>
+                            <option value="30">۳۰ روز (۱ ماه)</option>
+                            <option value="365">۳۶۵ روز (۱ سال)</option>
+                        </select>
+                        <button onclick="banUser('${u.username}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-lg">مسدود کردن</button>
+                        <button onclick="unbanUser('${u.username}')" class="bg-green-600 hover:bg-green-500 text-white px-2.5 py-1.5 rounded-lg">رفع مسدودی</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function banUser(username) {
+            const days = parseInt(document.getElementById(`ban-duration-${username}`).value);
+            const user = usersDB.find(u => u.username === username);
+            if (user) {
+                user.banUntil = Date.now() + (days * 24 * 60 * 60 * 1000);
+                try { localStorage.setItem('houshyar_users', JSON.stringify(usersDB)); } catch(e) {}
+                renderAdminUsers();
+                showToast(`کاربر ${username} به مدت ${days} روز مسدود شد.`);
+            }
+        }
+
+        function unbanUser(username) {
+            const user = usersDB.find(u => u.username === username);
+            if (user) {
+                user.banUntil = 0;
+                try { localStorage.setItem('houshyar_users', JSON.stringify(usersDB)); } catch(e) {}
+                renderAdminUsers();
+                showToast(`مسدودی کاربر ${username} برداشته شد.`);
+            }
+        }
+
+        function viewUserChats(username) {
+            let uChats = [];
+            try { uChats = JSON.parse(localStorage.getItem(`houshyar_chats_${username}`)) || []; } catch(e) {}
+            const content = document.getElementById('admin-chats-content');
+            document.getElementById('admin-chats-title').innerText = `مکالمات کاربر: ${username}`;
+            if (!uChats.length) {
+                content.innerHTML = `<div class="text-zinc-500 text-center py-4">این کاربر هیچ گفتگویی ثبت نکرده است.</div>`;
+            } else {
+                content.innerHTML = uChats.map(c => `
+                    <div class="bg-zinc-950 p-3 rounded-xl border border-zinc-800 space-y-2">
+                        <div class="font-bold text-indigo-400">عنوان: ${escapeHtml(c.title)}</div>
+                        <div class="max-h-48 overflow-y-auto bg-zinc-900 p-2 rounded-lg">${c.html}</div>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('admin-chats-modal').style.display = 'flex';
+        }
+        function closeAdminChatsModal() { document.getElementById('admin-chats-modal').style.display = 'none'; }
 
         function renderAdminReceipts() {
             const list = document.getElementById('admin-receipts-list');
@@ -1324,6 +1451,7 @@
             }
             try { localStorage.setItem('houshyar_receipts', JSON.stringify(receiptsDB)); } catch(e) {}
             renderAdminReceipts();
+            renderAdminUsers();
             showToast('فاکتور تأیید و اشتراک کاربر فعال شد.');
         }
 
@@ -1336,37 +1464,40 @@
 
         function renderAdminTickets() {
             const list = document.getElementById('admin-tickets-list');
-            if (!ticketsDB.length) {
+            // فقط تیکت‌هایی که پاسخ داده نشده‌اند (یا بسته نشده‌اند) نمایش داده شوند
+            const activeTickets = ticketsDB.filter(t => !t.isClosed);
+            if (!activeTickets.length) {
                 list.innerHTML = `<div class="text-xs text-zinc-500 text-center py-2">${translations[currentLang].noTkt}</div>`;
                 return;
             }
-            list.innerHTML = ticketsDB.map(t => `
+            list.innerHTML = activeTickets.map(t => `
                 <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-xs space-y-2">
                     <div class="flex justify-between font-bold text-indigo-400">
                         <span>${escapeHtml(t.username)}: ${escapeHtml(t.subject)}</span>
                         <span class="text-zinc-400">${t.status}</span>
                     </div>
                     <p class="text-zinc-300">${escapeHtml(t.message)}</p>
-                    ${t.reply ? `<div class="bg-zinc-900 p-2 rounded-lg text-emerald-400">پاسخ: ${escapeHtml(t.reply)}</div>` : ''}
-                    <div class="flex gap-2 pt-1">
-                        <input type="text" id="reply-input-${t.id}" placeholder="پاسخ به تیکت..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-zinc-100 focus:outline-none">
-                        <button onclick="replyTicket('${t.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg font-medium transition">ارسال پاسخ</button>
+                    ${t.reply ? `<div class="bg-zinc-900 p-2 rounded-lg text-emerald-400">پاسخ قبلی: ${escapeHtml(t.reply)}</div>` : ''}
+                    <div class="flex gap-2 pt-1 items-center">
+                        <input type="text" id="reply-input-${t.id}" value="${t.reply || ''}" placeholder="پاسخ به تیکت..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-zinc-100 focus:outline-none">
+                        <button onclick="replyAndCloseTicket('${t.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg font-medium transition">ارسال و بستن تیکت</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        function replyTicket(id) {
+        function replyAndCloseTicket(id) {
             const input = document.getElementById(`reply-input-${id}`);
             const replyText = input ? input.value.trim() : '';
-            if (!replyText) return;
+            if (!replyText) { showToast('لطفاً پاسخ را وارد کنید.', 'error'); return; }
             const tkt = ticketsDB.find(t => t.id === id);
             if (tkt) {
                 tkt.reply = replyText;
-                tkt.status = currentLang === 'en' ? 'Replied' : 'پاسخ داده شد';
+                tkt.status = currentLang === 'en' ? 'Replied & Closed' : 'پاسخ داده شد و بسته شد';
+                tkt.isClosed = true; // بسته شدن تیکت برای پنل مدیر
                 try { localStorage.setItem('houshyar_tickets', JSON.stringify(ticketsDB)); } catch(e) {}
                 renderAdminTickets();
-                showToast(currentLang === 'en' ? 'Reply sent.' : 'پاسخ تیکت ارسال شد.');
+                showToast(currentLang === 'en' ? 'Ticket replied and closed.' : 'تیکت پاسخ داده شد و از پنل بسته شد.');
             }
         }
 
