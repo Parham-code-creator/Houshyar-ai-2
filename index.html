@@ -450,7 +450,9 @@
                 noRec: "هیچ فاکتوری در انتظار تأیید نیست.",
                 noTkt: "هیچ تیکتی ثبت نشده است.",
                 adminLogout: "خروج از حساب",
-                adminClose: "بستن پنل"
+                adminClose: "بستن پنل",
+                discountText: "🎉 ۲۵,۰۰۰ تومان تخفیف اعمال شد!",
+                plansMap: { 'پریمیوم': 'Premium', 'پرو': 'Pro', 'پرو پریمیوم': 'Pro Premium', 'پرو مکس': 'Pro Max' }
             },
             en: {
                 brandName: "Houshyar AI 2",
@@ -517,7 +519,9 @@
                 noRec: "No pending receipts found.",
                 noTkt: "No tickets found.",
                 adminLogout: "Logout",
-                adminClose: "Close Panel"
+                adminClose: "Close Panel",
+                discountText: "🎉 25,000 Tomans discount applied!",
+                plansMap: { 'پریمیوم': 'Premium', 'پرو': 'Pro', 'پرو پریمیوم': 'Pro Premium', 'پرو مکس': 'Pro Max' }
             }
         };
 
@@ -647,6 +651,8 @@
             if (welcomeDesc) welcomeDesc.innerText = t.welcomeDesc;
 
             updateQuotaUI();
+            renderPlans();
+            renderChatHistoryList();
         }
 
         function toggleMode() {
@@ -684,6 +690,7 @@
         function renderPlans() {
             const container = document.getElementById('plans-container');
             const months = parseInt(selectedDuration);
+            const t = translations[currentLang];
             const plans = [
                 { name: 'پریمیوم', msg: 50, img: 10 },
                 { name: 'پرو', msg: 100, img: 15 },
@@ -694,25 +701,27 @@
             container.innerHTML = plans.map(p => {
                 let rawPrice = basePrices[p.name] * months;
                 let finalPrice = rawPrice;
-                let discountText = '';
+                let discountHtml = '';
                 if (months > 1) {
                     finalPrice = Math.max(0, rawPrice - 25000);
-                    discountText = `<div class="text-[10px] text-green-400 mt-1 font-bold">🎉 ۲۵,۰۰۰ تومان تخفیف اعمال شد!</div>`;
+                    discountHtml = `<div class="text-[10px] text-green-400 mt-1 font-bold">${t.discountText}</div>`;
                 }
-                const priceFormatted = finalPrice.toLocaleString('fa-IR');
+                const priceFormatted = finalPrice.toLocaleString(currentLang === 'en' ? 'en-US' : 'fa-IR');
+                const displayName = t.plansMap[p.name] || p.name;
+                const durationText = currentLang === 'en' ? `${months} Months` : `${months} ماهه`;
                 return `
                 <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-4 flex flex-col justify-between shadow-md hover:border-indigo-500 transition">
                     <div>
-                        <div class="text-xs text-zinc-400 font-bold mb-1">${months} ماهه</div>
-                        <h4 class="font-bold text-indigo-400 text-base">${p.name}</h4>
-                        <div class="text-lg font-bold my-2 text-zinc-100">${priceFormatted} <span class="text-xs text-zinc-400">تومان</span></div>
-                        ${discountText}
+                        <div class="text-xs text-zinc-400 font-bold mb-1">${durationText}</div>
+                        <h4 class="font-bold text-indigo-400 text-base">${displayName}</h4>
+                        <div class="text-lg font-bold my-2 text-zinc-100">${priceFormatted} <span class="text-xs text-zinc-400">${currentLang === 'en' ? 'Tomans' : 'تومان'}</span></div>
+                        ${discountHtml}
                         <ul class="text-xs text-zinc-300 space-y-2 my-4 border-t border-zinc-800/80 pt-3">
-                            <li><i class="fa-solid fa-check text-green-400 ml-1"></i> روزانه ${p.msg} پیام متنی</li>
-                            <li><i class="fa-solid fa-check text-green-400 ml-1"></i> روزانه ${p.img} تصویر AI</li>
+                            <li><i class="fa-solid fa-check text-green-400 ml-1"></i> ${currentLang === 'en' ? `${p.msg} text messages daily` : `روزانه ${p.msg} پیام متنی`}</li>
+                            <li><i class="fa-solid fa-check text-green-400 ml-1"></i> ${currentLang === 'en' ? `${p.img} AI images daily` : `روزانه ${p.img} تصویر AI`}</li>
                         </ul>
                     </div>
-                    <button onclick="selectPlan('${p.name} (${months} ماهه)', '${priceFormatted}')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-lg text-xs transition">انتخاب و پرداخت</button>
+                    <button onclick="selectPlan('${displayName} (${durationText})', '${priceFormatted}')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 rounded-lg text-xs transition">${currentLang === 'en' ? 'Select & Pay' : 'انتخاب و پرداخت'}</button>
                 </div>`;
             }).join('');
         }
@@ -851,19 +860,19 @@
                 <div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto">
                     <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
                     <div class="bg-zinc-800 border border-zinc-700 w-full max-w-[450px] p-6 rounded-2xl flex flex-col items-center justify-center text-white space-y-3 shadow-lg">
-                        <div id="${loadingId}-text" class="text-sm font-bold text-amber-300 text-center tracking-wide">⏳ در حال ساخت تصویر.</div>
+                        <div id="${loadingId}-text" class="text-sm font-bold text-amber-300 text-center tracking-wide">⏳ ${t.imgLoadingText}.</div>
                     </div>
                 </div>`;
             container.scrollTop = container.scrollHeight;
 
-            // افکت پویا‌ی نقطه چین (۱ نقطه، ۲ نقطه، ۳ نقطه به صورت مدام تا پایان)
             let dotState = 1;
             currentInterval = setInterval(() => {
                 dotState = (dotState % 3) + 1;
                 const dots = '.'.repeat(dotState);
                 const elText = document.getElementById(`${loadingId}-text`);
                 if (elText) {
-                    elText.innerText = `${t.imgLoadingText}${dots} (ممکن است ۴۵ ثانیه الی ۱ دقیقه طول بکشد)`;
+                    const waitDesc = currentLang === 'en' ? '(may take 45 seconds to 1 minute)' : '(ممکن است ۴۵ ثانیه الی ۱ دقیقه طول بکشد)';
+                    elText.innerText = `${t.imgLoadingText}${dots} ${waitDesc}`;
                 }
             }, 800);
 
@@ -1007,7 +1016,7 @@
                     <div onclick="loadChat('${c.id}')" class="cursor-pointer truncate flex items-center gap-2 flex-1">
                         <i class="fa-regular fa-message text-zinc-400 text-xs"></i> <span>${escapeHtml(c.title)}</span>
                     </div>
-                    <button onclick="deleteSingleChat(event, '${c.id}')" class="text-zinc-500 hover:text-red-400 p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                    <button onclick="confirmDeleteSingleChat(event, '${c.id}')" class="text-zinc-500 hover:text-red-400 p-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
                 </div>
             `).join('');
         }
@@ -1021,12 +1030,19 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        function deleteSingleChat(event, chatId) {
+        function confirmDeleteSingleChat(event, chatId) {
             event.stopPropagation();
-            chatsDB = chatsDB.filter(c => c.id !== chatId);
-            try { localStorage.setItem(`houshyar_chats_${currentUser.username}`, JSON.stringify(chatsDB)); } catch(e) {}
-            renderChatHistoryList();
-            if (currentChatId === chatId) newChat();
+            showConfirmModal(
+                currentLang === 'en' ? "Delete conversation?" : "حذف مکالمه؟",
+                currentLang === 'en' ? "Are you sure you want to delete this conversation?" : "آیا از حذف این مکالمه مطمئن هستید؟",
+                () => {
+                    chatsDB = chatsDB.filter(c => c.id !== chatId);
+                    try { localStorage.setItem(`houshyar_chats_${currentUser.username}`, JSON.stringify(chatsDB)); } catch(e) {}
+                    renderChatHistoryList();
+                    if (currentChatId === chatId) newChat();
+                    showToast(currentLang === 'en' ? "Conversation deleted." : "مکالمه حذف شد.");
+                }
+            );
         }
 
         function confirmClearAllChats() {
@@ -1061,7 +1077,7 @@
             if (!currentUser) return { msg: 0, img: 0 };
             if (currentUser.isAdmin || currentUser.isVice) return { msg: 9999, img: 9999 };
             const tier = currentUser.tier || 'free';
-            if (tier.includes('پریمیوم')) return { msg: 50, img: 10 };
+            if (tier.includes('پریمیوم') || tier.includes('Premium')) return { msg: 50, img: 10 };
             return { msg: DEFAULT_MSG_QUOTA, img: DEFAULT_IMG_QUOTA };
         }
 
@@ -1170,7 +1186,7 @@
             const password = document.getElementById('reg-password').value;
             const conf = document.getElementById('reg-confirm-password').value;
             if (password !== conf) { showToast(currentLang === 'en' ? 'Passwords do not match.' : 'رمز عبور مطابقت ندارد.', 'error'); return; }
-            const newUser = { username, password, tier: 'رایگان', banUntil: 0 };
+            const newUser = { username, password, tier: currentLang === 'en' ? 'Free' : 'رایگان', banUntil: 0 };
             usersDB.push(newUser);
             localStorage.setItem('houshyar_users', JSON.stringify(usersDB));
             currentUser = newUser;
@@ -1291,7 +1307,7 @@
                         ${!t.reply ? `<button onclick="deleteMyTicket('${t.id}')" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash"></i></button>` : ''}
                     </div>
                     <p class="text-zinc-400">${escapeHtml(t.message)}</p>
-                    ${t.reply ? `<div class="text-emerald-400">پاسخ مدیر: ${escapeHtml(t.reply)}</div>` : '<div class="text-amber-400 text-[10px]">در انتظار پاسخ مدیر</div>'}
+                    ${t.reply ? `<div class="text-emerald-400">${currentLang === 'en' ? 'Admin Reply: ' : 'پاسخ مدیر: '} ${escapeHtml(t.reply)}</div>` : `<div class="text-amber-400 text-[10px]">${currentLang === 'en' ? 'Pending admin reply' : 'در انتظار پاسخ مدیر'}</div>`}
                 </div>`).join('') : `<div class="text-xs text-zinc-500 text-center">${currentLang === 'en' ? 'No tickets.' : 'تیکتی نیست.'}</div>`;
         }
 
@@ -1372,22 +1388,22 @@
             }
             list.innerHTML = usersDB.map(u => {
                 const isBanned = u.banUntil && Date.now() < u.banUntil;
-                const tierInfo = u.tier || 'کاربر معمولی';
+                const tierInfo = u.tier || (currentLang === 'en' ? 'Regular User' : 'کاربر معمولی');
                 return `
                 <div class="bg-zinc-950 border border-zinc-800 p-3 rounded-xl text-xs flex flex-col md:flex-row items-center justify-between gap-3">
                     <div>
                         <div class="font-bold text-zinc-200">${escapeHtml(u.username)}</div>
-                        <div class="text-amber-400">اشتراک: ${tierInfo} ${isBanned ? '<span class="text-red-400 font-bold">(مسدود شده)</span>' : ''}</div>
+                        <div class="text-amber-400">${currentLang === 'en' ? 'Subscription: ' : 'اشتراک: '} ${tierInfo} ${isBanned ? '<span class="text-red-400 font-bold">(مسدود شده)</span>' : ''}</div>
                     </div>
                     <div class="flex items-center gap-2 flex-wrap">
-                        <button onclick="viewUserChats('${u.username}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1.5 rounded-lg">مشاهده مکالمات</button>
+                        <button onclick="viewUserChats('${u.username}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1.5 rounded-lg">مکالمات</button>
                         <select id="ban-duration-${u.username}" class="bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1 text-zinc-200">
                             <option value="1">۱ روز</option>
-                            <option value="7">۷ روز (۱ هفته)</option>
-                            <option value="30">۳۰ روز (۱ ماه)</option>
-                            <option value="365">۳۶۵ روز (۱ سال)</option>
+                            <option value="7">۷ روز</option>
+                            <option value="30">۳۰ روز</option>
+                            <option value="365">۳۶۵ روز</option>
                         </select>
-                        <button onclick="banUser('${u.username}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-lg">مسدود کردن</button>
+                        <button onclick="banUser('${u.username}')" class="bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded-lg">مسدود</button>
                         <button onclick="unbanUser('${u.username}')" class="bg-green-600 hover:bg-green-500 text-white px-2.5 py-1.5 rounded-lg">رفع مسدودی</button>
                     </div>
                 </div>`;
