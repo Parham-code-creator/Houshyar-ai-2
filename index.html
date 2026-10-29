@@ -78,8 +78,8 @@
                     </button>
                 </div>
 
-                <!-- دسترسی به آپارات و یوتیوب -->
-                <div class="space-y-1.5 pt-1">
+                <!-- دسترسی به آپارات و یوتیوب با نکته فیلترشکن -->
+                <div class="space-y-2 pt-1">
                     <div class="grid grid-cols-2 gap-1.5">
                         <a href="https://www.aparat.com" target="_blank" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs py-1.5 rounded-lg transition flex items-center justify-center gap-1 font-medium">
                             <i class="fa-solid fa-video"></i> <span id="ui-aparat">هوشیار آپارات</span>
@@ -87,6 +87,9 @@
                         <a href="https://www.youtube.com" target="_blank" class="bg-red-700/20 hover:bg-red-700/30 text-red-300 border border-red-600/30 text-xs py-1.5 rounded-lg transition flex items-center justify-center gap-1 font-medium">
                             <i class="fa-brands fa-youtube"></i> <span id="ui-youtube">هوشیار یوتیوب</span>
                         </a>
+                    </div>
+                    <div class="text-[10px] text-zinc-400 text-center leading-tight bg-zinc-900/80 p-1.5 rounded-lg border border-zinc-800" id="ui-yt-note">
+                        نکته: جهت استفاده از هوشیار یوتیوب باید فیلتر شکن روشن باشد
                     </div>
                 </div>
             </div>
@@ -382,6 +385,7 @@
                 support: "پشتیبانی",
                 aparat: "هوشیار آپارات",
                 youtube: "هوشیار یوتیوب",
+                ytNote: "نکته: جهت استفاده از هوشیار یوتیوب باید فیلتر شکن روشن باشد",
                 recentChats: "گفتگوهای اخیر",
                 clearAll: "پاکسازی همه",
                 noChats: "هنوز گفتگویی ثبت نشده است.",
@@ -390,6 +394,7 @@
                 welcomeDesc: "می‌توانید چت متنی (فارسی/انگلیسی) یا ساخت تصویر انجام دهید.",
                 inputPlaceholder: "پیام خود را بنویسید...",
                 imagePlaceholder: "توصیف تصویری که می‌خواهید ساخته شود...",
+                imgLoadingText: "⏳ در حال ساخت تصویر (ممکن است ۴۵ ثانیه الی ۱ دقیقه طول بکشد)...",
                 copy: "کپی",
                 edit: "ویرایش",
                 voicePlay: "پخش صوتی",
@@ -445,6 +450,7 @@
                 support: "Support",
                 aparat: "Houshyar Aparat",
                 youtube: "Houshyar YouTube",
+                ytNote: "Note: VPN must be turned on to use Houshyar YouTube",
                 recentChats: "Recent Chats",
                 clearAll: "Clear All",
                 noChats: "No chats recorded yet.",
@@ -453,6 +459,7 @@
                 welcomeDesc: "You can chat with text (Persian/English) or generate images.",
                 inputPlaceholder: "Type your message...",
                 imagePlaceholder: "Describe the image you want to generate...",
+                imgLoadingText: "⏳ Generating image (may take 45 seconds to 1 minute)...",
                 copy: "Copy",
                 edit: "Edit",
                 voicePlay: "Voice Play",
@@ -554,6 +561,7 @@
             document.getElementById('ui-support').innerText = t.support;
             document.getElementById('ui-aparat').innerText = t.aparat;
             document.getElementById('ui-youtube').innerText = t.youtube;
+            document.getElementById('ui-yt-note').innerText = t.ytNote;
             document.getElementById('ui-recent-chats').innerText = t.recentChats;
             document.getElementById('ui-clear-all').innerText = t.clearAll;
             document.getElementById('ui-no-chats').innerText = t.noChats;
@@ -799,6 +807,8 @@
             const welcome = document.getElementById('welcome-screen');
             if (welcome) welcome.remove();
 
+            const t = translations[currentLang];
+
             container.innerHTML += `
                 <div class="flex items-start gap-4 max-w-3xl mx-auto justify-end">
                     <div class="bg-purple-600 text-white px-4 py-3 rounded-2xl text-sm space-y-2 max-w-[85%]">
@@ -812,12 +822,13 @@
             container.innerHTML += `
                 <div id="${loadingId}" class="flex items-start gap-4 max-w-3xl mx-auto">
                     <div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0">هـ</div>
-                    <div class="bg-zinc-800 border border-zinc-700 w-full max-w-[450px] h-64 rounded-2xl flex flex-col items-center justify-center text-white p-6 space-y-3 shadow-lg">
-                        <div id="${loadingId}-text" class="text-lg font-bold text-white tracking-wider">در حال ساخت تصویر...</div>
+                    <div class="bg-zinc-800 border border-zinc-700 w-full max-w-[450px] p-6 rounded-2xl flex flex-col items-center justify-center text-white space-y-3 shadow-lg">
+                        <div class="text-xs font-bold text-amber-300 text-center leading-relaxed">${t.imgLoadingText}</div>
                     </div>
                 </div>`;
             container.scrollTop = container.scrollHeight;
 
+            // تنظیم دقیق زمان انتظار ۴۵ ثانیه تا ۱ دقیقه (مثلاً ۵۰ ثانیه)
             currentTimer = setTimeout(() => {
                 setProcessingState(false);
                 const el = document.getElementById(loadingId);
@@ -834,7 +845,7 @@
                     </div>`;
                 container.scrollTop = container.scrollHeight;
                 saveCurrentChatToStorage(container.innerHTML, 'تصویر: ' + text);
-            }, 2000);
+            }, 48000);
         }
 
         async function sendMessage() {
@@ -1253,7 +1264,6 @@
             showToast(currentLang === 'en' ? 'Changes saved successfully.' : 'تغییرات با موفقیت ذخیره شد.');
         }
 
-        // پنل مدیریت و تایید فاکتورها / تیکت‌ها
         function openAdminModal() {
             renderAdminReceipts();
             renderAdminTickets();
