@@ -184,7 +184,7 @@
         </div>
     </main>
 
-    <!-- پنجره تأیید گرافیکی (Modal) برای خروج یا پاکسازی -->
+    <!-- پنجره تأیید گرافیکی (Modal) برای خروج، پاکسازی یا تغییر زبان -->
     <div id="confirm-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative space-y-4 text-center">
             <div class="w-12 h-12 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center mx-auto text-xl">
@@ -316,7 +316,7 @@
         </div>
     </div>
 
-    <!-- پنل مدیریت (کامل با تأیید فاکتور و پاسخ به تیکت‌ها) -->
+    <!-- پنل مدیریت -->
     <div id="admin-modal" style="display: none;" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-zinc-900 border border-amber-500/30 rounded-2xl max-w-3xl w-full p-6 shadow-2xl relative space-y-6 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
@@ -828,7 +828,6 @@
                 </div>`;
             container.scrollTop = container.scrollHeight;
 
-            // تنظیم دقیق زمان انتظار ۴۵ ثانیه تا ۱ دقیقه (مثلاً ۵۰ ثانیه)
             currentTimer = setTimeout(() => {
                 setProcessingState(false);
                 const el = document.getElementById(loadingId);
@@ -1245,6 +1244,20 @@
             const newP = document.getElementById('profile-new-pass').value;
             const confP = document.getElementById('profile-confirm-pass').value;
 
+            if (newLang !== currentLang) {
+                showConfirmModal(
+                    newLang === 'en' ? "Change Language Confirmation" : "تأیید تغییر زبان",
+                    newLang === 'en' ? "Are you sure you want to change the application language?" : "آیا از تغییر زبان برنامه مطمئن هستید؟",
+                    () => {
+                        applyProfileChanges(newU, newLang, currP, newP, confP);
+                    }
+                );
+            } else {
+                applyProfileChanges(newU, newLang, currP, newP, confP);
+            }
+        }
+
+        function applyProfileChanges(newU, newLang, currP, newP, confP) {
             if (newP || currP || confP) {
                 if (currP !== currentUser.password) { showToast(currentLang === 'en' ? 'Incorrect current password.' : 'رمز عبور فعلی اشتباه است.', 'error'); return; }
                 if (newP !== confP) { showToast(currentLang === 'en' ? 'New passwords do not match.' : 'تکرار رمز عبور جدید مطابقت ندارد.', 'error'); return; }
