@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">Houshyar AI 2</title>
+    <!-- تنظیمات PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
     <!-- فونت وزیرمتن -->
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <!-- Tailwind CSS -->
@@ -876,7 +879,6 @@
                 }
             }, 800);
 
-            // انتخاب هوشمند عکس بر اساس کلیدواژه ورودی کاربر
             let imageUrl = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
             const lowerText = text.toLowerCase();
             if (lowerText.includes('ماشین') || lowerText.includes('car') || lowerText.includes('خودرو')) {
@@ -1007,7 +1009,7 @@
         function renderChatHistoryList() {
             const list = document.getElementById('chat-history-list');
             const t = translations[currentLang];
-            if (!chatsDB || chatsDB.length === 0) {
+            if (!currentUser || !chatsDB || chatsDB.length === 0) {
                 list.innerHTML = `<div class="p-2.5 text-xs text-zinc-500 text-center">${t.noChats}</div>`;
                 return;
             }
@@ -1241,6 +1243,7 @@
                 currentLang === 'en' ? "Are you sure you want to logout?" : "آیا از خروج از حساب کاربری خود مطمئن هستید؟",
                 () => {
                     currentUser = null;
+                    chatsDB = [];
                     localStorage.removeItem('houshyar_current_user');
                     const t = translations[currentLang];
                     document.getElementById('user-display-name').innerText = t.guest;
@@ -1251,6 +1254,7 @@
                     document.getElementById('logout-btn').style.display = 'none';
                     updateQuotaUI();
                     newChat();
+                    renderChatHistoryList();
                     closeAdminModal();
                     closeProfileModal();
                     showToast(currentLang === 'en' ? 'Logged out.' : 'از حساب خارج شدید.');
@@ -1541,13 +1545,17 @@
 
         function handleKeyPress(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendAction(); } }
         function escapeHtml(text) { return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-    </script
+    </script>
+
+    <!-- رجیستر کردن Service Worker برای قابلیت PWA -->
+    <script>
         if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then((reg) => console.log('Service Worker registered successfully!', reg))
-      .catch((err) => console.log('Service Worker registration failed:', err));
-  });
-}>
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+              .then((reg) => console.log('Service Worker registered successfully!', reg))
+              .catch((err) => console.log('Service Worker registration failed:', err));
+          });
+        }
+    </script>
 </body>
 </html>
