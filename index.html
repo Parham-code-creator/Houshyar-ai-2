@@ -35,7 +35,7 @@
     <div id="toast-container" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- سایدبار -->
-    <aside id="sidebar" class="w-72 bg-zinc-900 border-l border-zinc-800 flex flex-col justify-between transition-all duration-300 z-20">
+    <aside id="sidebar" class="w-72 bg-zinc-900 border-x border-zinc-800 flex flex-col justify-between transition-all duration-300 z-20">
         <div class="flex-1 flex flex-col min-h-0">
             <div class="p-4 flex gap-2">
                 <button onclick="newChat()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700/60 py-2.5 px-3 rounded-xl flex items-center justify-between text-sm transition font-medium">
@@ -598,7 +598,13 @@
             document.getElementById('ui-no-chats').innerText = t.noChats;
             document.getElementById('ui-auth-btn-text').innerText = currentUser ? currentUser.username : t.authBtn;
             document.getElementById('user-display-name').innerText = currentUser ? currentUser.username : t.guest;
-            document.getElementById('user-status-text').innerText = currentUser ? (currentUser.isAdmin ? 'Admin' : 'User') : t.needLogin;
+            
+            if (currentUser) {
+                document.getElementById('user-status-text').innerText = currentUser.isAdmin ? 'Admin' : (currentUser.isVice ? 'Vice' : (lang === 'en' ? 'User' : 'کاربر'));
+            } else {
+                document.getElementById('user-status-text').innerText = t.needLogin;
+            }
+
             document.getElementById('language-select').value = lang;
 
             document.getElementById('ui-settings-title').innerText = t.settingsTitle;
@@ -1228,7 +1234,7 @@
 
         function updateUIForUser(username, isAdmin, isVice) {
             document.getElementById('user-display-name').innerText = username;
-            document.getElementById('user-status-text').innerText = isAdmin ? 'Admin' : (isVice ? 'Vice' : 'User');
+            document.getElementById('user-status-text').innerText = isAdmin ? 'Admin' : (isVice ? 'Vice' : (currentLang === 'en' ? 'User' : 'User'));
             document.getElementById('user-avatar').innerText = username.charAt(0).toUpperCase();
             document.getElementById('ui-auth-btn-text').innerText = username;
             document.getElementById('admin-panel-btn').style.display = (isAdmin || isVice) ? 'block' : 'none';
@@ -1518,7 +1524,7 @@
                     ${t.reply ? `<div class="bg-zinc-900 p-2 rounded-lg text-emerald-400">پاسخ قبلی: ${escapeHtml(t.reply)}</div>` : ''}
                     <div class="flex gap-2 pt-1 items-center">
                         <input type="text" id="reply-input-${t.id}" value="${t.reply || ''}" placeholder="پاسخ به تیکت..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-zinc-100 focus:outline-none">
-                        <button onclick="replyAndCloseTicket('${t.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg font-medium transition">ارسال و بستن تیکت</button>
+                        <button onclick="replyAndCodeTicket('${t.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg font-medium transition">ارسال و بستن تیکت</button>
                     </div>
                 </div>
             `).join('');
