@@ -35,7 +35,7 @@
     <div id="toast-container" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- سایدبار -->
-    <aside id="sidebar" class="w-72 bg-zinc-900 border-zinc-800 flex flex-col justify-between transition-all duration-300 z-20">
+    <aside id="sidebar" class="w-72 bg-zinc-900 border-l border-zinc-800 flex flex-col justify-between transition-all duration-300 z-20">
         <div class="flex-1 flex flex-col min-h-0">
             <div class="p-4 flex gap-2">
                 <button onclick="newChat()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700/60 py-2.5 px-3 rounded-xl flex items-center justify-between text-sm transition font-medium">
@@ -78,7 +78,7 @@
                     </button>
                 </div>
 
-                <!-- دسترسی به آپارات و یوتیوب با نکته فیلترشکن -->
+                <!-- دسترسی به آپارات و یوتیوب -->
                 <div class="space-y-2 pt-1">
                     <div class="grid grid-cols-2 gap-1.5">
                         <a href="https://www.aparat.com" target="_blank" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 text-xs py-1.5 rounded-lg transition flex items-center justify-center gap-1 font-medium">
@@ -370,7 +370,7 @@
         let ticketsDB = [];
         let selectedDuration = '1';
         let currentLang = 'fa';
-        let inputMode = 'text'; // 'text' | 'image'
+        let inputMode = 'text';
         let selectedPlan = null;
         let recognition = null;
         let isRecording = false;
@@ -548,7 +548,6 @@
         } catch (e) {}
 
         document.addEventListener('DOMContentLoaded', () => {
-            applyLanguage(currentLang);
             if (currentUser) {
                 const dbUser = usersDB.find(u => u.username === currentUser.username);
                 if (dbUser && dbUser.banUntil && Date.now() < dbUser.banUntil) {
@@ -560,10 +559,8 @@
                     loadUserChats();
                 }
             }
-            updateQuotaUI();
-            newChat();
+            applyLanguage(currentLang);
             initSpeechRecognition();
-            renderPlans();
         });
 
         function applyLanguage(lang) {
@@ -599,12 +596,14 @@
             document.getElementById('ui-recent-chats').innerText = t.recentChats;
             document.getElementById('ui-clear-all').innerText = t.clearAll;
             document.getElementById('ui-no-chats').innerText = t.noChats;
-            document.getElementById('ui-auth-btn-text').innerText = currentUser ? currentUser.username : t.authBtn;
-            document.getElementById('user-display-name').innerText = currentUser ? currentUser.username : t.guest;
             
             if (currentUser) {
+                document.getElementById('ui-auth-btn-text').innerText = currentUser.username;
+                document.getElementById('user-display-name').innerText = currentUser.username;
                 document.getElementById('user-status-text').innerText = currentUser.isAdmin ? 'Admin' : (currentUser.isVice ? 'Vice' : (lang === 'en' ? 'User' : 'کاربر'));
             } else {
+                document.getElementById('ui-auth-btn-text').innerText = t.authBtn;
+                document.getElementById('user-display-name').innerText = t.guest;
                 document.getElementById('user-status-text').innerText = t.needLogin;
             }
 
@@ -654,10 +653,11 @@
             const inputEl = document.getElementById('user-input');
             if (inputEl) inputEl.placeholder = inputMode === 'text' ? t.inputPlaceholder : t.imagePlaceholder;
 
-            const welcomeTitle = document.getElementById('ui-welcome-title');
-            const welcomeDesc = document.getElementById('ui-welcome-desc');
-            if (welcomeTitle) welcomeTitle.innerText = t.welcomeTitle;
-            if (welcomeDesc) welcomeDesc.innerText = t.welcomeDesc;
+            // اگر صفحه روی حالت خوش‌آمدگویی است، متن خوش‌آمدگویی را هم بر اساس زبان به‌روز کن
+            const welcomeScreen = document.getElementById('welcome-screen');
+            if (welcomeScreen) {
+                newChat();
+            }
 
             updateQuotaUI();
             renderPlans();
@@ -885,7 +885,6 @@
                 }
             }, 800);
 
-            // انتخاب هوشمند عکس بر اساس کلیدواژه ورودی کاربر
             let imageUrl = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
             const lowerText = text.toLowerCase();
             if (lowerText.includes('ماشین') || lowerText.includes('car') || lowerText.includes('خودرو')) {
@@ -1201,7 +1200,7 @@
             currentUser = newUser;
             localStorage.setItem('houshyar_current_user', JSON.stringify(currentUser));
             updateUIForUser(username, false, false);
-            updateQuotaUI();
+            applyLanguage(currentLang);
             newChat();
             closeAuthModal();
             showToast(currentLang === 'en' ? 'Registration successful!' : 'ثبت‌نام با موفقیت انجام شد!');
@@ -1228,7 +1227,7 @@
                 updateUIForUser(user.username, false, false);
             }
             localStorage.setItem('houshyar_current_user', JSON.stringify(currentUser));
-            updateQuotaUI();
+            applyLanguage(currentLang);
             loadUserChats();
             newChat();
             closeAuthModal();
@@ -1237,7 +1236,7 @@
 
         function updateUIForUser(username, isAdmin, isVice) {
             document.getElementById('user-display-name').innerText = username;
-            document.getElementById('user-status-text').innerText = isAdmin ? 'Admin' : (isVice ? 'Vice' : (currentLang === 'en' ? 'User' : 'User'));
+            document.getElementById('user-status-text').innerText = isAdmin ? 'Admin' : (isVice ? 'Vice' : (currentLang === 'en' ? 'User' : 'کاربر'));
             document.getElementById('user-avatar').innerText = username.charAt(0).toUpperCase();
             document.getElementById('ui-auth-btn-text').innerText = username;
             document.getElementById('admin-panel-btn').style.display = (isAdmin || isVice) ? 'block' : 'none';
@@ -1251,14 +1250,7 @@
                 () => {
                     currentUser = null;
                     localStorage.removeItem('houshyar_current_user');
-                    const t = translations[currentLang];
-                    document.getElementById('user-display-name').innerText = t.guest;
-                    document.getElementById('user-status-text').innerText = t.needLogin;
-                    document.getElementById('user-avatar').innerText = "هـ";
-                    document.getElementById('ui-auth-btn-text').innerText = t.authBtn;
-                    document.getElementById('admin-panel-btn').style.display = 'none';
-                    document.getElementById('logout-btn').style.display = 'none';
-                    updateQuotaUI();
+                    applyLanguage(currentLang);
                     newChat();
                     closeAdminModal();
                     closeProfileModal();
@@ -1376,7 +1368,6 @@
             } catch(e) {}
 
             applyLanguage(newLang);
-            updateUIForUser(currentUser.username, currentUser.isAdmin, currentUser.isVice);
             closeProfileModal();
             showToast(currentLang === 'en' ? 'Changes saved successfully.' : 'تغییرات با موفقیت ذخیره شد.');
         }
