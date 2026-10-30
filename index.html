@@ -35,7 +35,7 @@
     <div id="toast-container" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- سایدبار -->
-    <aside id="sidebar" class="w-72 bg-zinc-900 border-x border-zinc-800 flex flex-col justify-between transition-all duration-300 z-20">
+    <aside id="sidebar" class="w-72 bg-zinc-900 border-zinc-800 flex flex-col justify-between transition-all duration-300 z-20">
         <div class="flex-1 flex flex-col min-h-0">
             <div class="p-4 flex gap-2">
                 <button onclick="newChat()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700/60 py-2.5 px-3 rounded-xl flex items-center justify-between text-sm transition font-medium">
@@ -570,14 +570,17 @@
             currentLang = lang;
             localStorage.setItem('houshyar_lang', lang);
             const root = document.getElementById('html-root');
+            const sidebar = document.getElementById('sidebar');
             const t = translations[lang];
 
             if (lang === 'en') {
                 root.setAttribute('dir', 'ltr');
                 root.setAttribute('lang', 'en');
+                sidebar.className = "w-72 bg-zinc-900 border-r border-zinc-800 flex flex-col justify-between transition-all duration-300 z-20";
             } else {
                 root.setAttribute('dir', 'rtl');
                 root.setAttribute('lang', 'fa');
+                sidebar.className = "w-72 bg-zinc-900 border-l border-zinc-800 flex flex-col justify-between transition-all duration-300 z-20";
             }
 
             document.getElementById('page-title').innerText = t.pageTitle;
@@ -1524,7 +1527,7 @@
                     ${t.reply ? `<div class="bg-zinc-900 p-2 rounded-lg text-emerald-400">پاسخ قبلی: ${escapeHtml(t.reply)}</div>` : ''}
                     <div class="flex gap-2 pt-1 items-center">
                         <input type="text" id="reply-input-${t.id}" value="${t.reply || ''}" placeholder="پاسخ به تیکت..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-zinc-100 focus:outline-none">
-                        <button onclick="replyAndCodeTicket('${t.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg font-medium transition">ارسال و بستن تیکت</button>
+                        <button onclick="replyAndCloseTicket('${t.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg font-medium transition">ارسال و بستن تیکت</button>
                     </div>
                 </div>
             `).join('');
